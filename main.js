@@ -127,13 +127,13 @@ function videoQualityCheck() {
   if (peakQuality === false) {
     if (((videoQuality + rotation) >= 2600) && ((audioQuality + audioQualityControlRotation) >= 2600)) {
       peakQuality = true;
-      document.getElementById("peakQualityLight").src = "assets\peakQuality.png"
+      document.getElementById("peakQualityLight").src = "assets/peakQuality.png"
       document.getElementById("peakQualityLight").style.width = "162px"
     }
   } else if (peakQuality === true) {
     if (((videoQuality + rotation) < 2600) && ((audioQuality + audioQualityControlRotation) < 2600)) {
       peakQuality = false;
-      document.getElementById("peakQualityLight").src = "assets\notPeakQuality.png"
+      document.getElementById("peakQualityLight").src = "assets/notPeakQuality.png"
       document.getElementById("peakQualityLight").style.width = "168px"
     }
   }
@@ -235,12 +235,12 @@ function pressureBuildup() {
   if (overheating === false) {
     if (pressure >= 180) {
       overheating = true;
-      document.getElementById("overheatLight").src = "assets\overheat.png"
+      document.getElementById("overheatLight").src = "assets/overheat.png"
     }
   } else if (overheating === true) {
     if (pressure < 180) {
       overheating = false;
-      document.getElementById("overheatLight").src = "assets\noOverheat.png"
+      document.getElementById("overheatLight").src = "assets/noOverheat.png"
     }
   }
   // Set the pressure dial accordingly.
