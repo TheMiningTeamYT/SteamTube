@@ -1,0 +1,156 @@
+/*
+Written By:
+Logan C.
+
+Inspired By / Replicating:
+https://www.wonder-tonic.com/steamtube/
+
+With help from:
+Logan C.'s Dad
+The good people of Stack Overflow.
+w3schools.com
+The Caret text editor
+Microsoft Visual Studio Code
+Pop-Tarts.
+Mio-Water.
+The JPEXS Flash .swf decomplier.
+*/
+
+/*
+Most of the crazy margins here are remants of when I was using margins to position everything.
+It's easier to just fix things when they break then to fix everything right now.
+I'm making a web toy, not critical infrastructure, ok?
+*/
+@font-face {
+  font-family: "Union Agrochem";
+  src: url("assets\20_Union Agrochem.ttf");
+}
+body {
+  display: flex;
+ 	justify-content: center;
+  background-color: black;
+}
+div {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  text-align: center;
+}
+.mainContainer{
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	background-image: url("assets\\background.jpg");
+	width: 900px;
+	height: 550px;
+}
+.qualityControl {
+	display: flex;
+	position: relative;
+	width: 300px;
+	height: 300px;
+	justify-content: center;
+	align-items: center;
+	margin: 25px -110px 0px;
+	top: 0px;
+  z-index: 1;
+}
+.videoContainer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	top: 168px;
+	left: 6px;
+}
+.video {
+  width: 450px;
+  height: 260px;
+  position: absolute;
+}
+.dial {
+  height: 110px;
+  width: 20px;
+  position: relative;
+  top: 20px;
+  left: 1px;
+  margin: 80px 327px 0px;
+  background-image: url("assets\\needle.png");
+}
+#videoUrl {
+  position: relative;
+  top: 25px;
+  left: 50px;
+  width: 400px;
+  height: 25px;
+  background-color: rgba(0,0,0,0);
+  border: none;
+  font-family: "Union Agrochem";
+}
+#loadButton {
+  position: relative;
+  height: 30px;
+  width: 30px;
+  border-radius: 30px;
+  background-color: darkred;
+  text-align: center;
+  border: outset darkred 5px;
+  color: white;
+  top: 20px;
+  left: 65px;
+}
+#noise {
+  z-index: 2;
+  opacity: 1;
+}
+#player {
+  z-index: 1;
+  position: absolute;
+}
+#pressureDial {
+  position: relative;
+  margin-top: 130px;
+  margin-left: 0px;
+  margin-right: 235px;
+  left: 90px;
+  top: 10px;
+  z-index: 2;
+}
+#pressureVent {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  border-radius: 70px;
+  background-color: darkred;
+  margin-top: 140px;
+  margin-right: 75px;
+  border: outset darkred 10px;
+  z-index: 2;
+  left: 87px;
+}
+#videoDial {
+  left: -8px;
+}
+#statusLights {
+  display: flex;
+	flex-direction: column;
+  position: relative;
+  right: 50px;
+  overflow: hidden
+}
+#statusLights img {
+  width: 162px;
+  height: 46px;
+}
+.dial div {
+  width: 100%;
+  height: 10px;
+  background-color: red;
+}
+.qualityControl img {
+  height: 178px;
+  width: 178px;
+}
+#videoQualityControl {
+  top: 5px;
+}
