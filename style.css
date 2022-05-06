@@ -21,14 +21,17 @@ Most of the crazy margins here are remants of when I was using margins to positi
 It's easier to just fix things when they break then to fix everything right now.
 I'm making a web toy, not critical infrastructure, ok?
 */
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap');
 @font-face {
   font-family: "Union Agrochem";
-  src: url("assets\20_Union Agrochem.ttf");
+  src: url("assets/unionagrochem.ttf");
+}
+* {
+  user-select: none;
 }
 body {
-  display: flex;
- 	justify-content: center;
   background-color: black;
+  margin: 0;
 }
 div {
   display: flex;
@@ -40,7 +43,7 @@ div {
 	display: flex;
 	align-items: center;
 	flex-direction: column;
-	background-image: url("assets\\background.jpg");
+	background-image: url("assets/background.jpg");
 	width: 900px;
 	height: 550px;
 }
@@ -51,8 +54,9 @@ div {
 	height: 300px;
 	justify-content: center;
 	align-items: center;
-	margin: 25px -110px 0px;
-	top: 0px;
+	margin: 25px -100px 0px;
+	top: -13px;
+  left: 1px;
   z-index: 1;
 }
 .videoContainer {
@@ -61,40 +65,61 @@ div {
 	align-items: center;
 	position: relative;
 	top: 168px;
-	left: 6px;
+	left: 5px;
 }
 .video {
-  width: 450px;
-  height: 260px;
+  width: 405px;
+  height: 225px;
   position: absolute;
 }
 .dial {
   height: 110px;
   width: 20px;
   position: relative;
-  top: 20px;
-  left: 1px;
-  margin: 80px 327px 0px;
-  background-image: url("assets\\needle.png");
+  top: 9px;
+  left: 2px;
+  margin: 80px 319px 0px;
+  background-image: url("assets/needle.png");
+}
+.bigtext {
+  font-family: 'Comfortaa', 'Times New Roman', cursive;
+  font-size: 70px;
+  margin: 30px;
+  text-shadow: 9px 9px 12.6px black;
+}
+.subheading {
+  font-family: 'Comfortaa', 'Times New Roman', cursive;
+  font-size: 30px;
+  margin: 30px;
+  text-shadow: 9px 9px 12.6px black;
+}
+.smalltext {
+  font-family: 'Comfortaa', 'Times New Roman', cursive;
+  font-size: 18px;
+  margin: 10px;
+}
+.caption {
+  font-family: 'Comfortaa', 'Times New Roman', cursive;
+  font-size: 15px;
+  margin: 10px;
 }
 #videoUrl {
   position: relative;
-  top: 25px;
-  left: 50px;
-  width: 400px;
+  top: 27px;
+  left: 51px;
+  width: 406px;
   height: 25px;
   background-color: rgba(0,0,0,0);
   border: none;
   font-family: "Union Agrochem";
+  user-select: text;
 }
 #loadButton {
   position: relative;
-  height: 30px;
-  width: 30px;
-  border-radius: 30px;
-  background-color: darkred;
+  height: 31px;
+  width: 32px;
   text-align: center;
-  border: outset darkred 5px;
+  margin: 5px;
   color: white;
   top: 20px;
   left: 65px;
@@ -111,36 +136,41 @@ div {
   position: relative;
   margin-top: 130px;
   margin-left: 0px;
-  margin-right: 235px;
-  left: 90px;
-  top: 10px;
+  margin-right: 215px;
+  left: 92px;
+  top: -2px;
   z-index: 2;
 }
 #pressureVent {
   position: relative;
-  width: 70px;
-  height: 70px;
-  border-radius: 70px;
-  background-color: darkred;
+  width: 67px;
+  height: 67px;
   margin-top: 140px;
   margin-right: 75px;
-  border: outset darkred 10px;
   z-index: 2;
-  left: 87px;
+  left: 78px;
+  top: 12px;
 }
 #videoDial {
-  left: -8px;
+  left: -2px;
+  top: 10px;
 }
 #statusLights {
   display: flex;
 	flex-direction: column;
   position: relative;
-  right: 50px;
+  right: 46px;
   overflow: hidden
 }
-#statusLights img {
-  width: 162px;
-  height: 46px;
+#videoQualityControl {
+  left: 10px;
+}
+#topbar {
+  width: 100%;
+  color: white;
+  background-color: #202020;
+  font-family: 'Comfortaa', 'Times New Roman', cursive;
+  margin: 0;
 }
 .dial div {
   width: 100%;
@@ -151,6 +181,21 @@ div {
   height: 178px;
   width: 178px;
 }
-#videoQualityControl {
-  top: 5px;
+#statusLights img {
+  width: 162px;
+  height: 46px;
+  margin-top: 10px;
+}
+#topbar a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 10px 7px;
+  text-decoration: none;
+  font-family: 'Comfortaa', 'Times New Roman', cursive;
+  font-size: 16px;
+  margin: 0;
+}
+#topbar a:hover {
+  background-color: #333333;
 }

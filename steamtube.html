@@ -15,6 +15,7 @@ Microsoft Visual Studio Code
 Pop-Tarts.
 Mio-Water.
 The JPEXS Flash .swf decomplier.
+The GIMP.
 -->
 <html>
   <head>
@@ -23,32 +24,64 @@ The JPEXS Flash .swf decomplier.
 	  <link rel="icon" type="image/png" href="../favicon.png">
 	</head>
 	<body>
-		<div class="mainContainer">
-		  	<div>
-  				<input type="text" id="videoUrl">
-  				<div id="loadButton"></div>
-			</div>
-			<div class="videoContainer">
-				<img src="assets/screen-overlay.png" class="video" style="opacity: 0.8; z-index: 3; width: 465px; height: 270px; left: -236px;">
-				<img src="assets/noise.webp" class="video" id="noise">
-				<div id="player" class="video"></div>
-			</div>
-			<div>
-				<div class="dial" id="audioDial"></div>
-				<div class="dial" id="videoDial"></div>
-			</div>
-			<div style="margin-top: 20px;">
-				<div id="audioQualityControl" class="qualityControl"><img src="assets/qualityControlWheel.png"></div>
-				<div id="pressureVent"></div>
-				<div id="pressureDial" class="dial"></div>
-				<div id="statusLights">
-					<img id="overheatLight" src="assets/noOverheat.png">
-					<img id="peakQualityLight" src="assets/notPeakQuality.png" style="width: 168px;">
+		<div style="flex-direction: column; width: 100%; align-items: center;">
+			<img src="header.jpg" style="width: 900px; height: 96px;">
+			<p style="margin: 2px 2px 2px 20px; font-family: 'Union Agrochem'; font-size: 20px; color: white;">
+				Recreated By: Logan C.
+			</p>
+		</div>
+		<div style="display: flex; width: 100%;">
+			<div class="mainContainer">
+				<div>
+					<input type="text" id="videoUrl">
+					<img id="loadButton" src="assets/littleButton.png">
 				</div>
-				<div id="videoQualityControl" class="qualityControl"><img src="assets/qualityControlWheel.png"></div>
+				<div class="videoContainer">
+					<img src="assets/screen-overlay.png" class="video" style="opacity: 0.8; z-index: 3; width: 420px; height: 230px; left: -213px; top: -113px;">
+					<img src="assets/noise.webp" class="video" id="noise">
+					<div id="player" class="video"></div>
+				</div>
+				<div>
+					<div class="dial" id="audioDial"></div>
+					<div class="dial" id="videoDial"></div>
+				</div>
+				<div style="margin-top: 20px;">
+					<div id="audioQualityControl" class="qualityControl"><img src="assets/qualityControlWheel.png"></div>
+					<img src="assets/bigButton.png" id="pressureVent">
+					<div id="pressureDial" class="dial"></div>
+					<div id="statusLights">
+						<img id="overheatLight" src="assets/noOverheat.png">
+						<img id="peakQualityLight" src="assets/notPeakQuality.png">
+					</div>
+					<div id="videoQualityControl" class="qualityControl"><img src="assets/qualityControlWheel.png"></div>
+				</div>
 			</div>
 		</div>
-		<audio id="audioNoise" src="assets/noise.mp3" preload="auto" loop="true" volume="0.25"></audio>
+		<div style="flex-direction: column; width: 100%; align-items: center; color: white;">
+			<p class="subheading">
+				HOW TO PLAY:
+			</p>
+			<p class="smalltext">
+				Choose a video. Enter the URL of any YouTube video (except those that prevent embedding) and click Load.<br><br>
+				Turn the audio and video cranks to make the video play. The higher the gauges go, the better the quality. Get the needles into the green areas for peak quality. See how long you can maintain peak quality.<br><br>
+				Watch the pressure gauge. You have to click Vent before it maxes out.<br><br>
+				Originally Created by: <a href="http://wondertonic.tumblr.com/">Wonder-Tonic</a><br><br>
+				Recreated in HTML and Javascript by: <a href="https://www.bahjeez.com/logan">Logan C.</a>
+			</p>
+			<p class="subheading">
+				A brief history of this page.
+			</p>
+			<p class="smalltext">
+				On March 19, 2010 a freelance copywriter and creative director named <a href="https://www.mikelacher.com/">Mark Lacher</a> released on his site Wonder-Tonic a game entitled "Steam-Powered Youtube."
+				For 3 years, many people enjoyed this game, but it went under my radar until 2013, when it was <a href="https://www.youtube.com/watch?v=Zux_GebV374">featured in an episode of <i>DONG</i></a> (standing for [things you can] Do Online Now, Guys).
+				That video brought to my attention, and I enjoyed it.<br><br>
+				However, the game was made in Flash, and as we all know, in 2021, Adobe dropped support for Flash, and with it died this game, until now.
+				This page contains the best recreation of the old Steam-Powered Youtube I can create.<br><br>
+				Please check out and support the continuing work of this games original developer, at his site <a href="https://www.mikelacher.com/">here.</a> However, before you do that, please, take a moment to enjoy this game, brought back from beyond the grave, just for you!<br><br>
+				Also, if you're interested, you can check out the source code for this game <a href="https://github.com/TheMiningTeamYT/SteamTube">here!</a>
+			</p>
+		</div>
+		<audio id="audioNoise" src="assets/noise.mp3" preload="auto" loop="true"></audio>
 		<audio id="recordSound" src="assets/HissSound.mp3" preload="auto" loop="true"></audio>
 		<audio id="ventingSound" src="assets/SteamSound.mp3" preload="auto"></audio>
 		<audio id="tickingSound" src="assets/TickSound.mp3" preload="auto" loop="true"></audio>
