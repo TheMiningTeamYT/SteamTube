@@ -67,6 +67,7 @@ document.getElementById("loadButton").addEventListener("click", function(){
   // Reset audio and video quality
   videoQuality = 0;
   audioQuality = 0;
+  pressure = 0;
 })
 // Start function to check the video quality.
 videoQualityCheck();
@@ -87,23 +88,24 @@ function videoQualityCheck() {
     document.getElementById("tickingSound").pause();
   }
   // If you've rotated the control all the way around, add 360 to the rotation in the future.
-  if (rotation < (lastRotationVideo - 150)) {
-      if (videoQualityControl.dataset.active == "true") {
-          videoQuality += 360;
-      }
-  }
-  // If you've rotated the control backwards, don't count it.
-  if (rotation > (lastRotationVideo + 150)) {
-      rotation -= rotation;
+  if ((rotation < (lastRotationVideo - 150)) && (videoQualityControl.dataset.active == "true")) {
+    videoQuality += 360;
+  } else if (rotation < lastRotationVideo) {
+    // If you've rotated the control backwards, don't count it.
+    rotation = lastRotationVideo;
+  } else if ((rotation > (lastRotationVideo + 150)) && (videoQualityControl.dataset.active == "true")) {
+    videoQuality -= 360;
   }
   // Save the current rotation of the control for future reference.
   lastRotationVideo = getRotation(videoQualityControl);
   // Cap the video quality to 3200.
-  if (videoQuality > 3200) {
-      videoQuality = 3200;
+  // If the user hasn't yet rotated the quality control, make sure no errors occur.
+  if (isNaN(rotation)) {
+    rotation = 0;
   }
+  videoQuality = clamp(videoQuality, -rotation, 3200);
   // If the video quality isn't already 0, slowly bring it down.
-  if (videoQuality > 0) {
+  if ((videoQuality + rotation) > 0) {
       videoQuality -= ((1.0009 ** videoQuality) + 2)/1.5;
   }
   // Set the opacity of the video noise according to the video quality.
@@ -138,23 +140,24 @@ function audioQualityCheck() {
 	// Get the current rotation of the audio quality control.
   var rotation = getRotation(audioQualityControl);
   // If you've rotated the control all the way around, add 360 to the rotation in the future.
-  if (rotation < (lastRotationAudio - 150)) {
-      if (audioQualityControl.dataset.active == "true") {
-          audioQuality += 360;
-      }
-  }
-  // If you've rotated the control backwards, don't count it.
-  if (rotation > (lastRotationAudio + 150)) {
-      rotation -= rotation;
+  if ((rotation < (lastRotationAudio - 150)) && (audioQualityControl.dataset.active == "true")) {
+    audioQuality += 360;
+  } else if (rotation < lastRotationAudio) {
+    // If you've rotated the control backwards, don't count it.
+    rotation = lastRotationAudio;
+  } else if ((rotation > (lastRotationAudio + 150)) && (audioQualityControl.dataset.active == "true")) {
+    audioQuality -= 360;
   }
   // Save the current rotation of the control for future reference.
   lastRotationAudio = getRotation(audioQualityControl);
-  // Cap the audio quality to 3000.
-  if (audioQuality > 3200) {
-      audioQuality = 3200;
+  // If the user hasn't yet rotated the quality control, make sure no errors occur.
+  if (isNaN(rotation)) {
+    rotation = 0;
   }
+  // Cap the audio quality to 3200.
+  audioQuality = clamp(audioQuality, -rotation, 3200);
   // If the audio quality isn't already 0, slowly bring it down.
-  if (audioQuality > 0) {
+  if ((audioQuality + rotation) > 0) {
       audioQuality -= ((1.0009 ** audioQuality) + 2)/1.5;
   }
   // If you've maxed out the video quality, don't rotate the dial any further.
@@ -203,7 +206,9 @@ function pressureBuildup() {
   } else {
     // Otherwise, keep increasing it.
     pressure += 0.25;
+    // Thank you TheMisir on Stack Overflow!
     document.getElementById("ventingSound").pause();
+    document.getElementById("ventingSound").currentTime = 0;
   }
   if (pressure > 220) {
     // If the pressure gets too high, blow everything up and reset the pressure.
