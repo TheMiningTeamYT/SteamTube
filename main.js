@@ -14,6 +14,7 @@ Microsoft Visual Studio Code
 Pop-Tarts.
 Mio-Water.
 The JPEXS Flash .swf decomplier.
+Notepad.
 */
 
 // Define all the global variables I need.
@@ -32,8 +33,6 @@ audioQualityControl = document.getElementById("audioQualityControl");
 pressureVentButton = document.getElementById("pressureVent");
 // Make sure you don't make the player's ear's bleed.
 document.getElementById("audioNoise").volume = 0.25;
-// Start the function that builds up pressure
-pressureBuildup();
 // Add event listeners for the vent pressure button.
 pressureVentButton.addEventListener("mousedown", function() {
   pressureVenting = true;
@@ -69,12 +68,13 @@ document.getElementById("loadButton").addEventListener("click", function(){
   audioQuality = 0;
   pressure = 0;
 })
-// Start function to check the video quality.
-videoQualityCheck();
+// Set all of the intervals
+setInterval(videoQualityCheck, 33);
+setInterval(audioQualityCheck, 33);
+setInterval(pressureBuildup, 33);
+
 // Define function to check the video quality.
 function videoQualityCheck() {
-  // Check the video quality again in ~1/30 secs.
-	var videoQualityCheckTimeout = setTimeout(videoQualityCheck, 33);
   // Make sure the record scratch-esque sound is playing
   document.getElementById("recordSound").play();
 	// Get the current rotation of the video control.
@@ -106,7 +106,7 @@ function videoQualityCheck() {
   videoQuality = clamp(videoQuality, -rotation, 3200);
   // If the video quality isn't already 0, slowly bring it down.
   if ((videoQuality + rotation) > 0) {
-      videoQuality -= ((1.0009 ** videoQuality) + 2)/1.5;
+      videoQuality -= (Math.pow(1.0009, videoQuality) + 2)/1.5;
   }
   // Set the opacity of the video noise according to the video quality.
   document.getElementById("noise").style.opacity = (1 -((rotation + videoQuality) / 2600));
@@ -131,12 +131,8 @@ function videoQualityCheck() {
   }
   
 }
-// Start the function to check the audio quality.
-audioQualityCheck();
 // Define function to check the audio quality.
 function audioQualityCheck() {
-  // Check the audio quality again in ~1/30 secs.
-	var audioQualityCheckTimeout = setTimeout(audioQualityCheck, 33);
 	// Get the current rotation of the audio quality control.
   var rotation = getRotation(audioQualityControl);
   // If you've rotated the control all the way around, add 360 to the rotation in the future.
@@ -158,7 +154,7 @@ function audioQualityCheck() {
   audioQuality = clamp(audioQuality, -rotation, 3200);
   // If the audio quality isn't already 0, slowly bring it down.
   if ((audioQuality + rotation) > 0) {
-      audioQuality -= ((1.0009 ** audioQuality) + 2)/1.5;
+      audioQuality -= (Math.pow(1.0009, audioQuality) + 2)/1.5;
   }
   // If you've maxed out the video quality, don't rotate the dial any further.
   if ((rotation + audioQuality) > 3200) {
@@ -191,8 +187,6 @@ function clamp(number, min, max) {
 }
 // Slowly build up pressure
 function pressureBuildup() {
-  // Increase the pressure again in ~1/30 secs.
-  var pressureTimeout = setTimeout(pressureBuildup, 33);
   // Make sure the pressure isn't below 0.
   if (pressure < 0) {
     pressure = 0;
