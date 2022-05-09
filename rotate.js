@@ -94,6 +94,8 @@ function DragObject(target) {
     d = R2D * Math.atan2(y, x);
     rotation = d - startAngle;
     if (active) {
+      var dropShadow = getRotationPoint(30, 30, (angle + rotation));
+      this.style.filter = "drop-shadow(" + dropShadow[0] + "px " + dropShadow[1] + "px 3px rgba(0,0,0,0.8)"
       return this.style.webkitTransform = "rotate(" + (angle + rotation) + "deg)";
     }
   };

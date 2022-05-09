@@ -58,6 +58,7 @@ div {
 	top: -13px;
   left: 1px;
   z-index: 1;
+  filter: drop-shadow(0px 30px 3px rgba(0,0,0,0.8))
 }
 .videoContainer {
 	display: flex;
@@ -126,7 +127,7 @@ div {
 }
 #noise {
   z-index: 2;
-  opacity: 1;
+  opacity: 0.6;
 }
 #player {
   z-index: 1;
@@ -171,6 +172,12 @@ div {
   background-color: #202020;
   font-family: 'Comfortaa', 'Times New Roman', cursive;
   margin: 0;
+}
+#turnCrankToPlay {
+  background-color: rgba(0,0,0,0.6); 
+  z-index: 3; 
+  align-items: center; 
+  backdrop-filter: blur(5px);
 }
 .dial div {
   width: 100%;

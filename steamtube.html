@@ -29,7 +29,7 @@ The GIMP.
 			<a href="../home.html">Go Back Home.</a>
 		</div>
 		<div style="flex-direction: column; width: 100%; align-items: center;">
-			<img src="header.jpg" style="width: 900px; height: 96px;">
+			<img src="assets/header.jpg" style="width: 900px; height: 96px;">
 			<p style="margin: 2px 2px 2px 20px; font-family: 'Union Agrochem'; font-size: 20px; color: white;">
 				Recreated By: Logan C.
 			</p>
@@ -41,7 +41,10 @@ The GIMP.
 					<img id="loadButton" src="assets/littleButton.png">
 				</div>
 				<div class="videoContainer">
-					<img src="assets/screen-overlay.png" class="video" style="opacity: 0.8; z-index: 3; width: 420px; height: 230px; left: -213px; top: -113px;">
+					<img src="assets/screen-overlay.png" class="video" style="opacity: 0.8; z-index: 4; width: 420px; height: 230px; left: -213px; top: -113px;">
+					<div id="turnCrankToPlay"class="video">
+						<p style="color: white; font-family: 'Union Agrochem'; font-size: 50px;">TURN THE VIDEO CRANK TO UNPAUSE THE VIDEO</p>
+					</div>
 					<img src="assets/noise.webp" class="video" id="noise">
 					<div id="player" class="video"></div>
 				</div>
@@ -104,17 +107,13 @@ The GIMP.
   				videoId: 'Zux_GebV374',
   				playerVars: {
   					'playsinline': 1,
-  					'controls': 0
+  					'controls': 0,
+					'autoplay': 0
   				},
   				events: {
-  				'onReady': onPlayerReady,
   				}
   			});
   			}
-  		function onPlayerReady(event) {
-  			event.target.playVideo();
-  			document.getElementById("audioNoise").play();
-  		}
   	</script>
  	</body>
 	<!-- Thanks J. Voigt of https://bl.ocks.org/joyrexus/7207044! -->
