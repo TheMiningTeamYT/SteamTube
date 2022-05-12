@@ -65,7 +65,7 @@ function DragObject(target) {
   init = function() {
     target.addEventListener("mousedown", start, false);
     target.addEventListener("mousemove", rotate, false);
-    return target.addEventListener("mouseup", stop, false);
+    return document.addEventListener("mouseup", stop, false);
   };
 
   R2D = 180 / Math.PI;
@@ -94,8 +94,8 @@ function DragObject(target) {
     d = R2D * Math.atan2(y, x);
     rotation = d - startAngle;
     if (active) {
-      var dropShadow = getRotationPoint(30, 30, (angle + rotation));
-      this.style.filter = "drop-shadow(" + dropShadow[0] + "px " + dropShadow[1] + "px 3px rgba(0,0,0,0.8)"
+      var dropShadow = getRotationPoint(20, 20, (angle + rotation));
+      this.style.filter = "drop-shadow(" + dropShadow[0] + "px " + dropShadow[1] + "px 3px rgba(0,0,0,0.7)"
       return this.style.webkitTransform = "rotate(" + (angle + rotation) + "deg)";
     }
   };

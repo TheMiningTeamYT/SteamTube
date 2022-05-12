@@ -28,6 +28,7 @@ playing = false;
 pressureVenting = false;
 overheating = false;
 peakQuality = false;
+playerReady = false;
 // Attach all the elements I need to variables.
 videoQualityControl = document.getElementById("videoQualityControl");
 audioQualityControl = document.getElementById("audioQualityControl");
@@ -53,14 +54,16 @@ document.getElementById("loadButton").addEventListener("click", function(){
       videoid = videoid.substring(0, remove_after);
   }
   // Load video
-  player.loadVideoById({videoId: videoid});
+  player.cueVideoById({videoId: videoid});
   // Reset the "Turn crank to play video" screen
   document.getElementById("turnCrankToPlay").style.opacity = 1;
+  document.getElementById("noise").style.opacity = 0.6;
   // Reset audio and video quality
   videoQuality = 0;
   audioQuality = 0;
   pressure = 0;
   playing = false;
+  playerReady = false;
 })
 // Set all of the intervals
 setInterval(videoQualityCheck, 33);
@@ -71,60 +74,95 @@ setInterval(pressureBuildup, 33);
 function videoQualityCheck() {
 	// Get the current rotation of the video control.
   var rotation = getRotation(videoQualityControl);
-  // Get the current rotation of the audio control.
-  var audioQualityControlRotation = getRotation(audioQualityControl);
-  // If you've turned the control wheel, play a ticking sound.
-  if (((rotation != lastRotationVideo) || (audioQualityControlRotation != lastRotationAudio)) && (playing === true)) {
-    document.getElementById("tickingSound").play();
-  } else {
-    document.getElementById("tickingSound").pause();
-  }
-  // If you've rotated the control all the way around, add 360 to the rotation in the future.
-  if ((rotation < (lastRotationVideo - 150)) && (videoQualityControl.dataset.active == "true")) {
-    videoQuality += 360;
-  } else if (rotation < lastRotationVideo) {
-    // If you've rotated the control backwards, don't count it.
-    videoQuality += (lastRotationVideo - rotation);
-  } else if ((rotation > (lastRotationVideo + 150)) && (videoQualityControl.dataset.active == "true")) {
-    videoQuality -= rotation;
-  }
-  // Start the video playing
-  if ((playing === false) && (rotation != lastRotationVideo) && (!isNaN(rotation))) {
-    document.getElementById("turnCrankToPlay").style.opacity = 0;
-    player.playVideo();
-    playing = true;
-    // Make sure the record scratch-esque sound is playing
-    document.getElementById("recordSound").play();
-    // Finaly, remove the noise
-    document.getElementById("noise").style.opacity = 0;
-  }
-  // Save the current rotation of the control for future reference.
-  lastRotationVideo = getRotation(videoQualityControl);
-  // Cap the video quality to 3200.
   // If the user hasn't yet rotated the quality control, make sure no errors occur.
   if (isNaN(rotation)) {
     rotation = 0;
   }
-  videoQuality = clamp(videoQuality, -rotation, (3200 - rotation));
+  if (playing === true) {
+    // If you've turned the control wheel, play a ticking sound.
+    if ((videoQualityControl.dataset.active == "true") || (audioQualityControl.dataset.active  == "true")) {
+      document.getElementById("tickingSound").play();
+    } else {
+      document.getElementById("tickingSound").pause();
+    }
+  } else if (playerReady === false) {
+    document.getElementById("turnCrankToPlayText").innerText = "LOADING...";
+  } else {
+    document.getElementById("turnCrankToPlayText").innerText = "TURN THE VIDEO CRANK TO UNPAUSE VIDEO";
+    if ((rotation != lastRotationVideo) && (!isNaN(rotation)) && (videoQualityControl.dataset.active == "true")) {
+      // Start the video playing
+      document.getElementById("turnCrankToPlay").style.opacity = 0;
+      player.playVideo();
+      playing = true;
+      // Make sure the record scratch-esque sound is playing
+      document.getElementById("recordSound").play();
+      // Finaly, remove the noise
+      document.getElementById("noise").style.opacity = 0;
+    }
+  }
+  // If you've rotated the control all the way around, add 360 to the rotation in the future.
+  if (videoQualityControl.dataset.active == "true") {
+    if ((rotation < (lastRotationVideo - 150))) {
+      videoQuality += 360;
+    } else if (rotation < lastRotationVideo) {
+      // If you've rotated the control backwards, don't count it.
+      videoQuality += (lastRotationVideo - rotation);
+    } else if ((rotation > (lastRotationVideo + 150))) {
+      videoQuality -= (rotation - lastRotationVideo);
+    }
+    // Save the current rotation of the control for future reference.
+    lastRotationVideo = getRotation(videoQualityControl);
+  } else {
+    // Give the wheel some momentum
+    var previousRotation = rotation;
+    if (rotation < (lastRotationVideo - 150)) {
+      videoQuality += 360;
+      rotation += (((rotation + 360) - lastRotationVideo) / 1.5);
+    } else if (rotation > (lastRotationVideo + 150)) {
+      videoQuality -= (rotation - lastRotationVideo);
+      rotation += (((rotation - 360) - lastRotationVideo) / 1.5);
+    } else if (rotation < lastRotationVideo) {
+      videoQuality += (lastRotationVideo - rotation);
+      rotation += ((rotation - lastRotationVideo) / 1.5);
+    } else {
+      rotation += ((rotation - lastRotationVideo) / 1.5);
+    }
+    lastRotationVideo = previousRotation;
+    videoQualityControl.style.transform = "rotate(" + rotation + "deg)";
+    var dropShadow = getRotationPoint(20, 20, (rotation));
+    videoQualityControl.style.filter = "drop-shadow(" + dropShadow[0] + "px " + dropShadow[1] + "px 3px rgba(0,0,0,0.7)"
+    videoQualityControl.dataset.angle = rotation;
+  }
+  // Cap the video quality to 1600.
+  videoQuality = clamp(videoQuality, -rotation, (1600 - rotation));
   // If the video quality isn't already 0, slowly bring it down.
-  if ((videoQuality + rotation) > 0) {
-      videoQuality -= (Math.pow(1.0009, videoQuality) + 2)/2;
+  if (Math.floor((videoQuality + rotation)) > 0) {
+      videoQuality -= 4;
   }
   // Set the opacity of the video noise according to the video quality.
-  // 520 = the target video quality (2600) divied by the target max blur (10px)
-  document.getElementById("player").style.filter = "blur(" + (10 -((rotation + videoQuality) / 260)) + "px)";
+  // 520 = the target video quality (1300) divied by the target max blur (10px)
+  if ((10 - ((rotation + videoQuality) / 130)) < 0.5) {
+    document.getElementById("player").style.filter = "blur(0px)";
+  } else {
+    document.getElementById("player").style.filter = "blur(" + (10 - ((rotation + videoQuality) / 130)) + "px)";
+  }
   // If you've maxed out the video quality, don't rotate the dial any further.
-  if ((rotation + videoQuality) > 3200) {
-    document.getElementById("videoDial").style.transform = "rotate(" + ((3200 / 12.8) - 125) + "deg)";
+  if ((rotation + videoQuality) > 1600) {
+    document.getElementById("videoDial").style.transform = "rotate(" + ((1600 / 6.4) - 125) + "deg)";
   } else {
     // Otherwise, rotate the dial accordingly.
-    document.getElementById("videoDial").style.transform = "rotate(" + (((rotation + videoQuality) / 12.8) - 125) + "deg)";
+    document.getElementById("videoDial").style.transform = "rotate(" + (((rotation + videoQuality) / 6.4) - 125) + "deg)";
+  }
+  // Get the current rotation of the audio control.
+  var audioQualityControlRotation = getRotation(audioQualityControl);
+  if (audioQualityControlRotation < (lastRotationAudio - 150)) {
+    audioQualityControlRotation += 360;
   }
   // Finally, check if you're at peak quality.
-  if ((peakQuality === false) && (((videoQuality + rotation) >= 2650) && ((audioQuality + audioQualityControlRotation) >= 2600))) {
+  if ((peakQuality === false) && (((videoQuality + rotation) >= 1325) && ((audioQuality + audioQualityControlRotation) >= 1300))) {
     peakQuality = true;
     document.getElementById("peakQualityLight").src = "assets/peakQuality.png"
-  } else if ((peakQuality === true) && (((videoQuality + rotation) < 2650) || ((audioQuality + audioQualityControlRotation) < 2600))) {
+  } else if ((peakQuality === true) && (((videoQuality + rotation) < 1325) || ((audioQuality + audioQualityControlRotation) < 1300))) {
     peakQuality = false;
     document.getElementById("peakQualityLight").src = "assets/notPeakQuality.png"
   }
@@ -134,45 +172,69 @@ function videoQualityCheck() {
 function audioQualityCheck() {
 	// Get the current rotation of the audio quality control.
   var rotation = getRotation(audioQualityControl);
-  // If you've rotated the control all the way around, add 360 to the rotation in the future.
-  if ((rotation < (lastRotationAudio - 150)) && (audioQualityControl.dataset.active == "true")) {
-    audioQuality += 360;
-  } else if (rotation < lastRotationAudio) {
-    // If you've rotated the control backwards, don't count it.
-    audioQuality += (lastRotationAudio- rotation);
-  } else if ((rotation > (lastRotationAudio + 150)) && (audioQualityControl.dataset.active == "true")) {
-    audioQuality -= 360;
-  }
-  // Save the current rotation of the control for future reference.
-  lastRotationAudio = getRotation(audioQualityControl);
-  // If the user hasn't yet rotated the quality control, make sure no errors occur.
-  if (isNaN(rotation)) {
+   // If the user hasn't yet rotated the quality control, make sure no errors occur.
+   if (isNaN(rotation)) {
     rotation = 0;
   }
-  // Cap the audio quality to 3200.
-  audioQuality = clamp(audioQuality, -rotation, (3200 - rotation));
+  // If you've rotated the control all the way around, add 360 to the rotation in the future.
+  if (audioQualityControl.dataset.active == "true") {
+    if (rotation < (lastRotationAudio - 150)) {
+      audioQuality += 360;
+    } else if (rotation < lastRotationAudio) {
+      // If you've rotated the control backwards, don't count it.
+      audioQuality += (lastRotationAudio - rotation);
+    } else if (rotation > (lastRotationAudio + 150)) {
+      audioQuality -= (rotation - lastRotationAudio);
+    }
+    // Save the current rotation of the control for future reference.
+    lastRotationAudio = getRotation(audioQualityControl);
+  } else {
+    // If the user isn't actively rotating the control, give the wheel some momentum.
+    var previousRotation = rotation;
+    if (rotation < (lastRotationAudio - 150)) {
+      audioQuality += 360;
+      rotation += (((rotation + 360) - lastRotationAudio) / 1.5);
+    } else if (rotation > (lastRotationAudio + 150)) {
+      audioQuality -= (rotation - lastRotationAudio);
+      rotation += (((rotation - 360) - lastRotationAudio) / 1.5);
+    } else if (rotation < lastRotationAudio) {
+      // If you've rotated the control backwards, don't count it.
+      audioQuality += (lastRotationAudio - rotation);
+      rotation += ((rotation - lastRotationAudio) / 1.5);
+    } else {
+      rotation += ((rotation - lastRotationAudio) / 1.5);
+    }
+    lastRotationAudio = previousRotation;
+    audioQualityControl.style.transform = "rotate(" + rotation + "deg)";
+    var dropShadow = getRotationPoint(20, 20, (rotation));
+    audioQualityControl.style.filter = "drop-shadow(" + dropShadow[0] + "px " + dropShadow[1] + "px 3px rgba(0,0,0,0.7)"
+    audioQualityControl.dataset.angle = rotation;
+  }
+  // Cap the audio quality to 1600.
+  audioQuality = clamp(audioQuality, -rotation, (1600 - rotation));
   // If the audio quality isn't already 0, slowly bring it down.
-  if ((audioQuality + rotation) > 0) {
-      audioQuality -= (Math.pow(1.0009, audioQuality) + 2)/2;
+  if (Math.floor((audioQuality + rotation)) > 0) {
+      audioQuality -= 4;
   }
   // If you've maxed out the video quality, don't rotate the dial any further.
-  if ((rotation + audioQuality) > 3200) {
-    document.getElementById("audioDial").style.transform = "rotate(" + ((3200 / 12.6) - 122) + "deg)";
+  if ((rotation + audioQuality) > 1600) {
+    document.getElementById("audioDial").style.transform = "rotate(" + ((1600 / 6.3) - 122) + "deg)";
   } else {
     // Otherwise, rotate the dial accordingly.
-    document.getElementById("audioDial").style.transform = "rotate(" + (((rotation + audioQuality) / 12.6) - 122) + "deg)";
+    document.getElementById("audioDial").style.transform = "rotate(" + (((rotation + audioQuality) / 6.3) - 122) + "deg)";
   }
   // Get the embedded YouTube player and tell it to change the volume accordingly.
-  player.setVolume(((rotation + audioQuality)/26));
+  player.setVolume(((rotation + audioQuality)/13));
+  // Start the audio noise playing if the user has started playing.
   if (playing === true) {
     document.getElementById("audioNoise").play();
   }
   // Get the audio noise and set it's volume accordingly.
-  document.getElementById("audioNoise").volume = (clamp((1 - ((rotation + audioQuality)/2600)), 0, 1) / 4);
+  document.getElementById("audioNoise").volume = (clamp((1 - ((rotation + audioQuality)/1300)), 0, 1) / 4);
 }
 // Get an element and return it's rotation from 0 - 360 degrees
 function getRotation(target) {
-    targetRotation = parseInt(target.style.transform.replace(/rotate\(|deg\)/g, ""));
+    targetRotation = parseFloat(target.style.transform.replace(/rotate\(|deg\)/g, ""));
     if (targetRotation < 0) {
         targetRotation = Math.abs(targetRotation += 360);
     }
@@ -225,8 +287,10 @@ function pressureBuildup() {
 function blowUp() {
   // If the pressure gets too high, cause everything to explode.
   // Reset everything.
-  videoQuality = 0;
-  audioQuality = 0;
+  var videoQualityControlRotation = getRotation(videoQualityControl);
+  var audioQualityControlRotation = getRotation(audioQualityControl);
+  videoQuality = -videoQualityControlRotation;
+  audioQuality = -audioQualityControl;
   pressureVenting = true;
   // The current state of the function is a placeholder for a real explosion
 }

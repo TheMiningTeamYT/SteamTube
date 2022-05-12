@@ -43,7 +43,7 @@ The GIMP.
 				<div class="videoContainer">
 					<img src="assets/screen-overlay.png" class="video" style="opacity: 0.8; z-index: 4; width: 420px; height: 230px; left: -213px; top: -113px;">
 					<div id="turnCrankToPlay"class="video">
-						<p style="color: white; font-family: 'Union Agrochem'; font-size: 50px;">TURN THE VIDEO CRANK TO UNPAUSE THE VIDEO</p>
+						<p id="turnCrankToPlayText">LOADING...</p>
 					</div>
 					<img src="assets/noise.webp" class="video" id="noise">
 					<div id="player" class="video"></div>
@@ -92,29 +92,39 @@ The GIMP.
 		<audio id="recordSound" src="assets/HissSound.mp3" preload="auto" loop="true"></audio>
 		<audio id="ventingSound" src="assets/SteamSound.mp3" preload="auto"></audio>
 		<audio id="tickingSound" src="assets/TickSound.mp3" preload="auto" loop="true"></audio>
+		<!-- Thanks J. Voigt of https://bl.ocks.org/joyrexus/7207044! -->
 		<script src="rotate.js"></script>
-  	<script src="main.js"></script>
-  	<script>
-  		var tag = document.createElement('script');
-  		tag.src = "https://www.youtube.com/iframe_api";
-  		var firstScriptTag = document.getElementsByTagName('script')[0];
-  		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-  
-  		function onYouTubeIframeAPIReady() {
-  			player = new YT.Player('player', {
-  				height: '260',
-  				width: '450',
-  				videoId: 'Zux_GebV374',
-  				playerVars: {
-  					'playsinline': 1,
-  					'controls': 0,
-					'autoplay': 0
-  				},
-  				events: {
-  				}
-  			});
-  			}
-  	</script>
+		<script src="main.js"></script>
+		<script>
+			var tag = document.createElement('script');
+			tag.src = "https://www.youtube.com/iframe_api";
+			var firstScriptTag = document.getElementsByTagName('script')[0];
+			firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+	
+			function onYouTubeIframeAPIReady() {
+				player = new YT.Player('player', {
+					height: '260',
+					width: '450',
+					videoId: 'Zux_GebV374',
+					playerVars: {
+						'playsinline': 1,
+						'controls': 0,
+						'autoplay': 0
+					},
+					events: {
+						'onReady' : onYTPlayerReady,
+						'onStateChange' : onYTPlayerStateChange
+					}
+				});
+			}
+			function onYTPlayerReady() {
+				playerReady = true;
+			}
+			function onYTPlayerStateChange(event) {
+				if (event.data == YT.PlayerState.CUED) {
+					playerReady = true;
+				}
+			}
+		</script>
  	</body>
-	<!-- Thanks J. Voigt of https://bl.ocks.org/joyrexus/7207044! -->
 </html>
