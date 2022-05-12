@@ -290,7 +290,7 @@ function blowUp() {
   var videoQualityControlRotation = getRotation(videoQualityControl);
   var audioQualityControlRotation = getRotation(audioQualityControl);
   videoQuality = -videoQualityControlRotation;
-  audioQuality = -audioQualityControl;
+  audioQuality = -audioQualityControlRotation;
   pressureVenting = true;
   // The current state of the function is a placeholder for a real explosion
 }
