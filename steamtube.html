@@ -16,6 +16,7 @@ Pop-Tarts.
 Mio-Water.
 The JPEXS Flash .swf decomplier.
 The GIMP.
+The Desmos Graphing Calculator.
 -->
 <html>
   <head>
@@ -59,12 +60,19 @@ The GIMP.
 					<div id="statusLights">
 						<img id="overheatLight" src="assets/noOverheat.png">
 						<img id="peakQualityLight" src="assets/notPeakQuality.png">
+						<div style="flex-direction: row; align-items: center; margin: 0;">
+							<div id="bestTimeDiv" style="background-image: url('assets/notBestTime.png');"><p id="bestTimeText" class="smalltext">0:00</p></div>
+							<div style="background-image: url('assets/bestTimeRecord.png');"><p id="bestTimeRecord" class="smalltext">0:00</p></div>
+						</div>
+						<p style="font-family: 'Union Agrochem'; color: #6d0601; position: relative; left: 40px; font-size: 20px; margin-top: 5px;">Best Time</p>
 					</div>
 					<div id="videoQualityControl" class="qualityControl"><img src="assets/qualityControlWheel.png"></div>
 				</div>
 			</div>
 		</div>
 		<div style="flex-direction: column; width: 100%; align-items: center; color: white;">
+			<p class="smalltext" style="font-family: 'Union Agrochem'">Please choose your difficulty level.</p>
+			<input id="difficultySlider" type="range" min="1" max="12" value="6" oninput="setDifficulty('true')">
 			<p class="subheading">
 				HOW TO PLAY:
 			</p>
@@ -92,7 +100,7 @@ The GIMP.
 		<audio id="recordSound" src="assets/HissSound.mp3" preload="auto" loop="true"></audio>
 		<audio id="ventingSound" src="assets/SteamSound.mp3" preload="auto"></audio>
 		<audio id="tickingSound" src="assets/TickSound.mp3" preload="auto" loop="true"></audio>
-		<!-- Thanks J. Voigt of https://bl.ocks.org/joyrexus/7207044! -->
+		<!-- Thanks J. Voigt of https://bl.ocks.org/joyrexus/7207044 ! -->
 		<script src="rotate.js"></script>
 		<script src="main.js"></script>
 		<script>

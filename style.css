@@ -14,6 +14,7 @@ Microsoft Visual Studio Code
 Pop-Tarts.
 Mio-Water.
 The JPEXS Flash .swf decomplier.
+The Desmos Graphing Calculator.
 */
 
 /*
@@ -161,7 +162,8 @@ div {
 	flex-direction: column;
   position: relative;
   right: 46px;
-  overflow: hidden
+  overflow: hidden;
+  top: 55px;
 }
 #videoQualityControl {
   left: 10px;
@@ -188,7 +190,7 @@ div {
   height: 178px;
   width: 178px;
 }
-#statusLights img {
+#statusLights * {
   width: 162px;
   height: 46px;
   margin-top: 10px;
@@ -210,4 +212,17 @@ div {
   color: white; 
   font-family: 'Union Agrochem'; 
   font-size: 50px;
+}
+#difficultySlider {
+  width: 200px;
+  height: 10px;
+}
+#statusLights div div {
+  width: 80px;
+  height: 45px;
+  color: white;
+}
+#statusLights div div p {
+  font-size: 24px; 
+  font-family: 'Union Agrochem';
 }

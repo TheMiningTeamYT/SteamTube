@@ -15,10 +15,22 @@ Pop-Tarts.
 Mio-Water.
 The JPEXS Flash .swf decomplier.
 Notepad.
+The Desmos Graphing Calculator.
 */
-
+// Create the timer object I'm going to use to keep track of time elapsed.
+class timer {
+  constructor() {
+      this.startDate = new Date();
+  }
+  timeElapsed() {
+      // Thank you JellicleCat of Stack Overflow!
+      var seconds= Math.round(((new Date()) - this.startDate) / 1000);
+      var timeStr = formatTime(seconds);
+      return [timeStr, seconds];
+  }
+}
 // Define all the global variables I need.
-
+var testTimer = new timer();
 lastRotationVideo = 0;
 lastRotationAudio = 0;
 videoQuality = 0;
@@ -29,10 +41,18 @@ pressureVenting = false;
 overheating = false;
 peakQuality = false;
 playerReady = false;
+bestTime = parseFloat(localStorage.getItem("bestTime"));
+if (isNaN(bestTime)) {
+  bestTime = 0;
+} else {
+  document.getElementById("bestTimeRecord").innerText = formatTime(bestTime);
+}
 // Attach all the elements I need to variables.
 videoQualityControl = document.getElementById("videoQualityControl");
 audioQualityControl = document.getElementById("audioQualityControl");
 pressureVentButton = document.getElementById("pressureVent");
+// Get the difficulty
+setDifficulty("false");
 // Make sure you don't make the player's ear's bleed.
 document.getElementById("audioNoise").volume = 0.25;
 // Add event listeners for the vent pressure button.
@@ -40,7 +60,7 @@ pressureVentButton.addEventListener("click", function() {
   pressureVenting = true;
   pressureVentButton.src = "assets/bigButtonPressed.png";
   setTimeout(animatePressureVentButton, 200);
-})
+});
 
 // Add event listener for the load button.
 document.getElementById("loadButton").addEventListener("click", function(){
@@ -59,12 +79,14 @@ document.getElementById("loadButton").addEventListener("click", function(){
   document.getElementById("turnCrankToPlay").style.opacity = 1;
   document.getElementById("noise").style.opacity = 0.6;
   // Reset audio and video quality
-  videoQuality = 0;
-  audioQuality = 0;
+  var videoQualityControlRotation = getRotation(videoQualityControl);
+  var audioQualityControlRotation = getRotation(audioQualityControl);
+  videoQuality = -videoQualityControlRotation;
+  audioQuality = -audioQualityControlRotation;
   pressure = 0;
   playing = false;
   playerReady = false;
-})
+});
 // Set all of the intervals
 setInterval(videoQualityCheck, 33);
 setInterval(audioQualityCheck, 33);
@@ -117,27 +139,27 @@ function videoQualityCheck() {
     var previousRotation = rotation;
     if (rotation < (lastRotationVideo - 150)) {
       videoQuality += 360;
-      rotation += (((rotation + 360) - lastRotationVideo) / 1.5);
+      rotation += (((rotation + 360) - lastRotationVideo) / 1.3);
     } else if (rotation > (lastRotationVideo + 150)) {
       videoQuality -= (rotation - lastRotationVideo);
-      rotation += (((rotation - 360) - lastRotationVideo) / 1.5);
+      rotation += (((rotation - 360) - lastRotationVideo) / 1.3);
     } else if (rotation < lastRotationVideo) {
       videoQuality += (lastRotationVideo - rotation);
-      rotation += ((rotation - lastRotationVideo) / 1.5);
+      rotation += ((rotation - lastRotationVideo) / 1.3);
     } else {
-      rotation += ((rotation - lastRotationVideo) / 1.5);
+      rotation += ((rotation - lastRotationVideo) / 1.3);
     }
     lastRotationVideo = previousRotation;
     videoQualityControl.style.transform = "rotate(" + rotation + "deg)";
     var dropShadow = getRotationPoint(20, 20, (rotation));
-    videoQualityControl.style.filter = "drop-shadow(" + dropShadow[0] + "px " + dropShadow[1] + "px 3px rgba(0,0,0,0.7)"
+    videoQualityControl.style.filter = "drop-shadow(" + dropShadow[0] + "px " + dropShadow[1] + "px 3px rgba(0,0,0,0.7)";
     videoQualityControl.dataset.angle = rotation;
   }
   // Cap the video quality to 1600.
   videoQuality = clamp(videoQuality, -rotation, (1600 - rotation));
   // If the video quality isn't already 0, slowly bring it down.
   if (Math.floor((videoQuality + rotation)) > 0) {
-      videoQuality -= 4;
+      videoQuality -= (difficulty / 2);
   }
   // Set the opacity of the video noise according to the video quality.
   // 520 = the target video quality (1300) divied by the target max blur (10px)
@@ -161,10 +183,22 @@ function videoQualityCheck() {
   // Finally, check if you're at peak quality.
   if ((peakQuality === false) && (((videoQuality + rotation) >= 1325) && ((audioQuality + audioQualityControlRotation) >= 1300))) {
     peakQuality = true;
-    document.getElementById("peakQualityLight").src = "assets/peakQuality.png"
+    peakQualityTimer = new timer();
+    document.getElementById("peakQualityLight").src = "assets/peakQuality.png";
+    document.getElementById("bestTimeDiv").style.backgroundImage = "url('assets/bestTime.png')";
   } else if ((peakQuality === true) && (((videoQuality + rotation) < 1325) || ((audioQuality + audioQualityControlRotation) < 1300))) {
     peakQuality = false;
-    document.getElementById("peakQualityLight").src = "assets/notPeakQuality.png"
+    document.getElementById("peakQualityLight").src = "assets/notPeakQuality.png";
+    document.getElementById("bestTimeDiv").style.backgroundImage = "url('assets/notBestTime.png')";
+    document.getElementById("bestTimeText").innerText = "0:00";
+  } else if (peakQuality === true) {
+    var peakQualityTime = peakQualityTimer.timeElapsed();
+    document.getElementById("bestTimeText").innerText = peakQualityTime[0];
+    if (peakQualityTime[1] > bestTime) {
+      localStorage.setItem("bestTime", peakQualityTime[1]);
+      bestTime = peakQualityTime[1]
+      document.getElementById("bestTimeRecord").innerText = formatTime(bestTime);
+    }
   }
   
 }
@@ -173,7 +207,7 @@ function audioQualityCheck() {
 	// Get the current rotation of the audio quality control.
   var rotation = getRotation(audioQualityControl);
    // If the user hasn't yet rotated the quality control, make sure no errors occur.
-   if (isNaN(rotation)) {
+  if (isNaN(rotation)) {
     rotation = 0;
   }
   // If you've rotated the control all the way around, add 360 to the rotation in the future.
@@ -193,16 +227,16 @@ function audioQualityCheck() {
     var previousRotation = rotation;
     if (rotation < (lastRotationAudio - 150)) {
       audioQuality += 360;
-      rotation += (((rotation + 360) - lastRotationAudio) / 1.5);
+      rotation += (((rotation + 360) - lastRotationAudio) / 1.3);
     } else if (rotation > (lastRotationAudio + 150)) {
       audioQuality -= (rotation - lastRotationAudio);
-      rotation += (((rotation - 360) - lastRotationAudio) / 1.5);
+      rotation += (((rotation - 360) - lastRotationAudio) / 1.3);
     } else if (rotation < lastRotationAudio) {
       // If you've rotated the control backwards, don't count it.
       audioQuality += (lastRotationAudio - rotation);
-      rotation += ((rotation - lastRotationAudio) / 1.5);
+      rotation += ((rotation - lastRotationAudio) / 1.3);
     } else {
-      rotation += ((rotation - lastRotationAudio) / 1.5);
+      rotation += ((rotation - lastRotationAudio) / 1.3);
     }
     lastRotationAudio = previousRotation;
     audioQualityControl.style.transform = "rotate(" + rotation + "deg)";
@@ -214,7 +248,7 @@ function audioQualityCheck() {
   audioQuality = clamp(audioQuality, -rotation, (1600 - rotation));
   // If the audio quality isn't already 0, slowly bring it down.
   if (Math.floor((audioQuality + rotation)) > 0) {
-      audioQuality -= 4;
+      audioQuality -= (difficulty / 2);
   }
   // If you've maxed out the video quality, don't rotate the dial any further.
   if ((rotation + audioQuality) > 1600) {
@@ -264,7 +298,7 @@ function pressureBuildup() {
     }
   } else {
     // Otherwise, keep increasing it.
-    pressure += 0.25;
+    pressure += (0.25 * (difficulty / 6));
   }
   if (pressure > 220) {
     // If the pressure gets too high, blow everything up and reset the pressure.
@@ -307,4 +341,27 @@ function getRotationPoint(rh, ry, angle) {
   var y = ry * (Math.cos((angle * Math.PI) / 180));
   var coordinateArray = [x, y];
   return coordinateArray;
+}
+function setDifficulty(changed) {
+  if (changed == "true") {
+    difficulty = document.getElementById("difficultySlider").value;
+    localStorage.setItem("difficulty", difficulty);
+  } else {
+    difficulty = parseFloat(localStorage.getItem("difficulty"));
+    if (isNaN(difficulty)) {
+      difficulty = 6
+    }
+    document.getElementById("difficultySlider").value = difficulty;
+  }
+}
+// Thank you Tom Esterez of Stack Overflow!
+function formatTime(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.round(seconds % 60);
+  return [
+    h,
+    m > 9 ? m : (h ? '0' + m : m || '0'),
+    s > 9 ? s : '0' + s
+  ].filter(Boolean).join(':');
 }
