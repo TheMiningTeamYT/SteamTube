@@ -94,10 +94,12 @@ function DragObject(target) {
     y = e.clientY - center.y;
     d = R2D * Math.atan2(y, x);
     rotation = d - startAngle;
-    if (active) {
+    // Because active is a global variable, we need to get the active state for this specific target.
+    active = target.dataset.active;
+    if (active == "true") {
       var dropShadow = getRotationPoint(20, 20, (angle + rotation));
       this.style.filter = "drop-shadow(" + dropShadow[0] + "px " + dropShadow[1] + "px 3px rgba(0,0,0,0.7)";
-      return this.style.webkitTransform = "rotate(" + (angle + rotation) + "deg)";
+      return this.style.transform = "rotate(" + (angle + rotation) + "deg)";
     }
   };
 
@@ -112,7 +114,7 @@ function DragObject(target) {
 
 }
 function springBack(target) {
-  var angle = parseFloat(target.dataset.angle);
+  var angle = parseInt(target.dataset.angle);
   // if angle is negative
   if (angle < 0) {
     angle += 360;

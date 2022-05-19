@@ -20,119 +20,220 @@ The Desmos Graphing Calculator.
 -->
 <html>
   <head>
-	  <meta charset="utf-8">
-	  <title>Steam-Powered YouTube</title>
-	  <link rel="stylesheet" href="style.css">
-	  <link rel="icon" type="image/png" href="../favicon.png">
-	</head>
-	<body>
-		<div id="topbar">
-			<a href="../home.html">Go Back Home.</a>
-		</div>
-		<div style="flex-direction: column; width: 100%; align-items: center;">
-			<img src="assets/header.jpg" style="width: 900px; height: 96px;">
-			<p style="margin: 2px 2px 2px 20px; font-family: 'Union Agrochem'; font-size: 20px; color: white;">
-				Recreated By: Logan C.
-			</p>
-		</div>
-		<div style="display: flex; width: 100%;">
-			<div class="mainContainer">
-				<div>
-					<input type="text" id="videoUrl">
-					<img id="loadButton" src="assets/littleButton.png">
-				</div>
-				<div class="videoContainer">
-					<img src="assets/screen-overlay.png" class="video" style="opacity: 0.8; z-index: 4; width: 420px; height: 230px; left: -213px; top: -113px;">
-					<div id="turnCrankToPlay"class="video">
-						<p id="turnCrankToPlayText">LOADING...</p>
-					</div>
-					<img src="assets/noise.webp" class="video" id="noise">
-					<div id="player" class="video"></div>
-				</div>
-				<div>
-					<div class="dial" id="audioDial"></div>
-					<div class="dial" id="videoDial"></div>
-				</div>
-				<div style="margin-top: 20px;">
-					<div id="audioQualityControl" class="qualityControl"><img src="assets/qualityControlWheel.png"></div>
-					<img src="assets/bigButton.png" id="pressureVent">
-					<div id="pressureDial" class="dial"></div>
-					<div id="statusLights">
-						<img id="overheatLight" src="assets/noOverheat.png">
-						<img id="peakQualityLight" src="assets/notPeakQuality.png">
-						<div style="flex-direction: row; align-items: center; margin: 0;">
-							<div id="bestTimeDiv" style="background-image: url('assets/notBestTime.png');"><p id="bestTimeText" class="smalltext">0:00</p></div>
-							<div style="background-image: url('assets/bestTimeRecord.png');"><p id="bestTimeRecord" class="smalltext">0:00</p></div>
-						</div>
-						<p style="font-family: 'Union Agrochem'; color: #6d0601; position: relative; left: 40px; font-size: 20px; margin-top: 5px;">Best Time</p>
-					</div>
-					<div id="videoQualityControl" class="qualityControl"><img src="assets/qualityControlWheel.png"></div>
-				</div>
-			</div>
-		</div>
-		<div style="flex-direction: column; width: 100%; align-items: center; color: white;">
-			<p class="smalltext" style="font-family: 'Union Agrochem'">Please choose your difficulty level.</p>
-			<input id="difficultySlider" type="range" min="1" max="12" value="6" oninput="setDifficulty('true')">
-			<p class="subheading">
-				HOW TO PLAY:
-			</p>
-			<p class="smalltext">
-				Choose a video. Enter the URL of any YouTube video (except those that prevent embedding) and click Load.<br><br>
-				Turn the audio and video cranks to make the video play. The higher the gauges go, the better the quality. Get the needles into the green areas for peak quality. See how long you can maintain peak quality.<br><br>
-				Watch the pressure gauge. You have to click Vent before it maxes out.<br><br>
-				Originally Created by: <a href="http://wondertonic.tumblr.com/">Wonder-Tonic</a><br><br>
-				Recreated in HTML and Javascript by: <a href="https://www.bahjeez.com/logan">Logan C.</a>
-			</p>
-			<p class="subheading">
-				A brief history of this page.
-			</p>
-			<p class="smalltext">
-				On March 19, 2010 a freelance copywriter and creative director named <a href="https://www.mikelacher.com/">Mark Lacher</a> released on his site Wonder-Tonic a game entitled "Steam-Powered Youtube."
-				For 3 years, many people enjoyed this game, but it went under my radar until 2013, when it was <a href="https://www.youtube.com/watch?v=Zux_GebV374">featured in an episode of <i>DONG</i></a> (standing for [things you can] Do Online Now, Guys).
-				That video brought to my attention, and I enjoyed it.<br><br>
-				However, the game was made in Flash, and as we all know, in 2021, Adobe killed Flash, and with it died this game, until now.
-				This page contains the best recreation of the old Steam-Powered Youtube I can create.<br><br>
-				Please check out and support the continuing work of this game's original developer, at his site <a href="https://www.mikelacher.com/">here.</a> However, before you do that, please, take a moment to enjoy this game, brought back from beyond the grave, just for you!<br><br>
-				Also, if you're interested, you can check out the source code for this game <a href="https://github.com/TheMiningTeamYT/SteamTube">here!</a>
-			</p>
-		</div>
-		<audio id="audioNoise" src="assets/noise.mp3" preload="auto" loop="true"></audio>
-		<audio id="recordSound" src="assets/HissSound.mp3" preload="auto" loop="true"></audio>
-		<audio id="ventingSound" src="assets/SteamSound.mp3" preload="auto"></audio>
-		<audio id="tickingSound" src="assets/TickSound.mp3" preload="auto" loop="true"></audio>
-		<!-- Thanks J. Voigt of https://bl.ocks.org/joyrexus/7207044 ! -->
-		<script src="rotate.js"></script>
-		<script src="main.js"></script>
-		<script>
-			var tag = document.createElement('script');
-			tag.src = "https://www.youtube.com/iframe_api";
-			var firstScriptTag = document.getElementsByTagName('script')[0];
-			firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-	
-			function onYouTubeIframeAPIReady() {
-				player = new YT.Player('player', {
-					height: '260',
-					width: '450',
-					videoId: 'Zux_GebV374',
-					playerVars: {
-						'playsinline': 1,
-						'controls': 0,
-						'autoplay': 0
-					},
-					events: {
-						'onReady' : onYTPlayerReady,
-						'onStateChange' : onYTPlayerStateChange
-					}
-				});
-			}
-			function onYTPlayerReady() {
-				playerReady = true;
-			}
-			function onYTPlayerStateChange(event) {
-				if (event.data == YT.PlayerState.CUED) {
-					playerReady = true;
-				}
-			}
-		</script>
- 	</body>
+    <meta charset="utf-8" />
+    <title>Steam-Powered YouTube</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" type="image/png" href="../favicon.png" />
+  </head>
+  <body>
+    <div id="topbar">
+      <a href="../home.html">Go Back Home.</a>
+    </div>
+    <div style="flex-direction: column; width: 100%; align-items: center">
+      <img src="assets/header.jpg" style="width: 900px; height: 96px" />
+      <p
+        style="
+          margin: 2px 2px 2px 20px;
+          font-family: 'Union Agrochem';
+          font-size: 20px;
+          color: white;
+        "
+      >
+        Recreated By: Logan C.
+      </p>
+    </div>
+    <div 
+      style="
+        display: flex; 
+        width: 100%;
+        user-select: none;
+      "
+    >
+      <div class="mainContainer">
+        <div>
+          <input type="text" id="videoUrl" />
+          <img id="loadButton" src="assets/littleButton.png" />
+        </div>
+        <div class="videoContainer">
+          <img
+            src="assets/screen-overlay.png"
+            style="
+              opacity: 0.8;
+              z-index: 4;
+              width: 420px;
+              height: 230px;
+              left: -213px;
+              top: -113px;
+              position: absolute;
+            "
+          />
+          <div id="turnCrankToPlay" class="video">
+            <p id="turnCrankToPlayText">LOADING...</p>
+          </div>
+          <img src="assets/noise.webp" class="video" id="noise" />
+          <div id="player" class="video"></div>
+        </div>
+        <div>
+          <div class="dial" id="audioDial"></div>
+          <div class="dial" id="videoDial"></div>
+        </div>
+        <div 
+          style="
+            margin-top: 20px;
+          "
+        >
+          <div id="audioQualityControl" class="qualityControl">
+            <img src="assets/qualityControlWheel.png" />
+          </div>
+          <img src="assets/bigButton.png" id="pressureVent" draggable="false" />
+          <div id="pressureDial" class="dial"></div>
+          <div id="statusLights">
+            <img id="overheatLight" src="assets/noOverheat.png" />
+            <img id="peakQualityLight" src="assets/notPeakQuality.png" />
+            <div 
+              style="
+                flex-direction: row; 
+                align-items: center; 
+                margin: 0;
+              "
+            >
+              <div
+                id="bestTimeDiv"
+                style="background-image: url('assets/notBestTime.png')"
+              >
+                <p id="bestTimeText" class="smalltext">0:00</p>
+              </div>
+              <div style="background-image: url('assets/bestTimeRecord.png')">
+                <p id="bestTimeRecord" class="smalltext">0:00</p>
+              </div>
+            </div>
+            <p
+              style="
+                font-family: 'Union Agrochem';
+                color: #6d0601;
+                position: relative;
+                left: 40px;
+                font-size: 20px;
+                margin-top: 5px;
+              "
+            >
+              Best Time
+            </p>
+          </div>
+          <div id="videoQualityControl" class="qualityControl">
+            <img src="assets/qualityControlWheel.png" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      style="
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+        color: white;
+      "
+    >
+      <p class="smalltext" style="font-family: 'Union Agrochem'">
+        Please choose your difficulty level.
+      </p>
+      <input
+        id="difficultySlider"
+        type="range"
+        min="1"
+        max="12"
+        value="6"
+        oninput="setDifficulty('true')"
+      />
+      <p class="subheading">HOW TO PLAY:</p>
+      <p class="smalltext">
+        Choose a video. Enter the URL of any YouTube video (except those that
+        prevent embedding) and click Load.<br /><br />
+        Turn the audio and video cranks to make the video play. The higher the
+        gauges go, the better the quality. Get the needles into the green areas
+        for peak quality. See how long you can maintain peak quality.<br /><br />
+        Watch the pressure gauge. You have to click Vent before it maxes out.<br /><br />
+        Originally Created by:
+        <a href="http://wondertonic.tumblr.com/">Wonder-Tonic</a><br /><br />
+        Recreated in HTML and Javascript by:
+        <a href="https://www.bahjeez.com/logan">Logan C.</a>
+      </p>
+      <p class="subheading">A brief history of this page.</p>
+      <p class="smalltext">
+        On March 19, 2010 a freelance copywriter and creative director named
+        <a href="https://www.mikelacher.com/">Mark Lacher</a> released on his
+        site Wonder-Tonic a game entitled "Steam-Powered Youtube." For 3 years,
+        many people enjoyed this game, but it went under my radar until 2013,
+        when it was
+        <a href="https://www.youtube.com/watch?v=Zux_GebV374"
+          >featured in an episode of <i>DONG</i></a
+        >
+        (standing for [things you can] Do Online Now, Guys). That video brought
+        to my attention, and I enjoyed it.<br /><br />
+        However, the game was made in Flash, and as we all know, in 2021, Adobe
+        killed Flash, and with it died this game, until now. This page contains
+        the best recreation of the old Steam-Powered Youtube I can create.<br /><br />
+        Please check out and support the continuing work of this game's original
+        developer, at his site
+        <a href="https://www.mikelacher.com/">here.</a> However, before you do
+        that, please, take a moment to enjoy this game, brought back from beyond
+        the grave, just for you!<br /><br />
+        Also, if you're interested, you can check out the source code for this
+        game <a href="https://github.com/TheMiningTeamYT/SteamTube">here!</a>
+      </p>
+    </div>
+    <audio
+      id="audioNoise"
+      src="assets/noise.mp3"
+      preload="auto"
+      loop="true"
+    ></audio>
+    <audio
+      id="recordSound"
+      src="assets/HissSound.mp3"
+      preload="auto"
+      loop="true"
+    ></audio>
+    <audio id="ventingSound" src="assets/SteamSound.mp3" preload="auto"></audio>
+    <audio
+      id="tickingSound"
+      src="assets/TickSound.mp3"
+      preload="auto"
+      loop="true"
+    ></audio>
+    <!-- Thanks J. Voigt of https://bl.ocks.org/joyrexus/7207044 ! -->
+    <script src="rotate.js"></script>
+    <script src="main.js"></script>
+    <script>
+      var tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName("script")[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player("player", {
+          height: "260",
+          width: "450",
+          videoId: "Zux_GebV374",
+          playerVars: {
+            playsinline: 1,
+            controls: 0,
+            autoplay: 0,
+          },
+          events: {
+            onReady: onYTPlayerReady,
+            onStateChange: onYTPlayerStateChange,
+          },
+        });
+      }
+      function onYTPlayerReady() {
+        playerReady = true;
+      }
+      function onYTPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.CUED) {
+          playerReady = true;
+        }
+      }
+    </script>
+  </body>
 </html>
