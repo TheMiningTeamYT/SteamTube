@@ -37,6 +37,11 @@ div {
   flex-direction: row;
   text-align: center;
 }
+input {
+  width: 200px;
+  height: 10px;
+  z-index: 1;
+}
 .mainContainer{
 	display: flex;
 	align-items: center;
@@ -45,6 +50,7 @@ div {
 	width: 900px;
 	height: 550px;
   user-select: none;
+  /* For Fireox 35 */
   -moz-user-select: none;
 }
 .qualityControl {
@@ -72,8 +78,6 @@ div {
   width: 405px;
   height: 225px;
   position: absolute;
-  /* left: -198px;
-  top: -113px; */
 }
 .dial {
   height: 110px;
@@ -213,10 +217,6 @@ div {
   color: white; 
   font-family: 'Union Agrochem'; 
   font-size: 50px;
-}
-#difficultySlider {
-  width: 200px;
-  height: 10px;
 }
 #statusLights div div {
   width: 80px;

@@ -1,13 +1,3 @@
-// This code up here is a Firefox 35 compatible way to create a class.
-// Created by the BabelJS JS Converter.
-"use strict";
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
 /*
 Written By:
 Logan C.
@@ -28,15 +18,25 @@ Notepad.
 The Desmos Graphing Calculator.
 LOTS OF HELP FROM: The BabelJS JS converter.
 */
-// Create the timer object I'm going to use to keep track of time elapsed.
-var timer = /*#__PURE__*/function () {
-  function timer() {
-    _classCallCheck(this, timer);
+// This code up here is a Firefox 35 compatible way to create a class.
+// The following section was created by the BabelJS JS Converter.
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+// Create the Timer object I'm going to use to keep track of time elapsed.
+var Timer = /*#__PURE__*/function () {
+  function Timer() {
+    _classCallCheck(this, Timer);
 
     this.startDate = new Date();
   }
 
-  _createClass(timer, [{
+  _createClass(Timer, [{
     key: "timeElapsed",
     value: function timeElapsed() {
       // Thank you JellicleCat of Stack Overflow!
@@ -46,10 +46,10 @@ var timer = /*#__PURE__*/function () {
     }
   }]);
 
-  return timer;
+  return Timer;
 }(); // Thanks John-Jones and murb of Stack Overflow!
 // Get the user's browser
-
+// This is the end of the section created by the BabelJS JS converter.
 
 function get_browser() {
   var ua = navigator.userAgent,
@@ -99,7 +99,7 @@ if (browser.version < 52 && (browser.name == "Firefox" || browser.name == "firef
     videoElementArray[loops].style.left = "-201px";
     loops++;
   }
-} 
+}
 // Define all the global variables I need.
 
 var lastRotationVideo = 0;
@@ -113,28 +113,29 @@ var overheating = false;
 var peakQuality = false;
 var playerReady = false;
 var bestTime = parseFloat(localStorage.getItem("bestTime"));
-
-if (isNaN(bestTime)) {
-  bestTime = 0;
-} else {
-  document.getElementById("bestTimeRecord").innerText = formatTime(bestTime);
-} // Attach all the elements I need to variables.
-
+// Get the difficulty
+var difficulty = 6;
+setDifficulty("false"); 
+// Get the volume.
+var volume = 100;
+setVolume('false');
+// Attach all the elements I need to variables.
 
 var videoQualityControl = document.getElementById("videoQualityControl");
 var audioQualityControl = document.getElementById("audioQualityControl");
-var pressureVentButton = document.getElementById("pressureVent"); // Get the difficulty
-var difficulty = 6;
+var pressureVentButton = document.getElementById("pressureVent"); 
 var peakQualityTimer = "";
-setDifficulty("false"); // Make sure you don't make the player's ear's bleed.
+// Make sure you don't make the player's ear's bleed.
 
-document.getElementById("audioNoise").volume = 0.25; // Add event listeners for the vent pressure button.
+document.getElementById("audioNoise").volume = 0.25; 
+// Add event listeners for the vent pressure button.
 
 pressureVentButton.addEventListener("mousedown", function () {
   pressureVenting = true;
   pressureVentButton.src = "assets/bigButtonPressed.png";
   setTimeout(animatePressureVentButton, 200);
-}); // Add event listener for the load button.
+});
+// Add event listener for the load button.
 
 document.getElementById("loadButton").addEventListener("click", function () {
   document.getElementById("loadButton").src = "assets/littleButtonPressed.png";
@@ -185,9 +186,9 @@ function videoQualityCheck() {
       document.getElementById("tickingSound").pause();
     }
   } else if (playerReady === false) {
-    document.getElementById("turnCrankToPlayText").innerHTML = "LOADING...";
+    document.getElementById("turnCrankToPlayText").innerHTML = "COPYRIGHT IS BROKEN...";
   } else {
-    document.getElementById("turnCrankToPlayText").innerHTML = "TURN THE VIDEO CRANK TO UNPAUSE VIDEO";
+    document.getElementById("turnCrankToPlayText").innerHTML = "THE YOUTUBE EMBEDDING RULES PREVENTED ME DOING SOMETHING SPECIAL...";
 
     if (rotation != lastRotationVideo && !isNaN(rotation) && videoQualityControl.dataset.active == "true") {
       // Start the video playing
@@ -203,34 +204,49 @@ function videoQualityCheck() {
 
 
   if (videoQualityControl.dataset.active == "true") {
-    if (rotation < lastRotationVideo - 150) {
-      videoQuality += 360;
-    } else if (rotation < lastRotationVideo) {
-      // If you've rotated the control backwards, don't count it.
-      videoQuality += lastRotationVideo - rotation;
-    } else if (rotation > lastRotationVideo + 150) {
-      videoQuality -= rotation - lastRotationVideo;
-    } // Save the current rotation of the control for future reference.
-
-
+    if (playing === true){
+      if (rotation < lastRotationVideo - 150) {
+        videoQuality += 360;
+      } else if (rotation < lastRotationVideo) {
+        // If you've rotated the control backwards, don't count it.
+        videoQuality += lastRotationVideo - rotation;
+      } else if (rotation > lastRotationVideo + 150) {
+        videoQuality -= rotation - lastRotationVideo;
+      }
+    } else {
+      videoQuality = -rotation;
+    }
+    // Save the current rotation of the control for future reference.
     lastRotationVideo = getRotation(videoQualityControl);
   } else {
     // Give the wheel some momentum
     var previousRotation = rotation;
-
-    if (rotation < lastRotationVideo - 150) {
-      videoQuality += 360;
-      rotation += (rotation + 360 - lastRotationVideo) / 1.3;
-    } else if (rotation > lastRotationVideo + 150) {
-      videoQuality -= rotation - lastRotationVideo;
-      rotation += (rotation - 360 - lastRotationVideo) / 1.3;
-    } else if (rotation < lastRotationVideo) {
-      videoQuality += lastRotationVideo - rotation;
-      rotation += (rotation - lastRotationVideo) / 1.3;
+    if (playing === true) {
+      if (rotation < lastRotationVideo - 150) {
+        videoQuality += 360;
+        rotation += (rotation + 360 - lastRotationVideo) / 1.3;
+      } else if (rotation > lastRotationVideo + 150) {
+        videoQuality -= rotation - lastRotationVideo;
+        rotation += (rotation - 360 - lastRotationVideo) / 1.3;
+      } else if (rotation < lastRotationVideo) {
+        videoQuality += lastRotationVideo - rotation;
+        rotation += (rotation - lastRotationVideo) / 1.3;
+      } else {
+        rotation += (rotation - lastRotationVideo) / 1.3;
+      }
     } else {
-      rotation += (rotation - lastRotationVideo) / 1.3;
+      if (rotation < lastRotationVideo - 150) {
+        rotation += (rotation + 360 - lastRotationVideo) / 1.3;
+      } else if (rotation > lastRotationVideo + 150) {
+        rotation += (rotation - 360 - lastRotationVideo) / 1.3;
+      } else if (rotation < lastRotationVideo) {
+        rotation += (rotation - lastRotationVideo) / 1.3;
+      } else {
+        rotation += (rotation - lastRotationVideo) / 1.3;
+      }
+      videoQuality = -rotation;
     }
-
+    
     lastRotationVideo = previousRotation;
     // Rotate the wheel according to the calculations above.
     videoQualityControl.style.transform = "rotate(" + rotation + "deg)";
@@ -271,10 +287,10 @@ function videoQualityCheck() {
   } // Finally, check if you're at peak quality.
 
 
-  if (peakQuality === false && videoQuality + rotation >= 1325 && audioQuality + audioQualityControlRotation >= 1300) {
+  if (peakQuality === false && videoQuality + rotation >= 1325 && audioQuality + audioQualityControlRotation >= 1300 && playing === true) {
     peakQuality = true;
     // This timer keeps track of how long the user has kept the video at peak quality.
-    peakQualityTimer = new timer();
+    peakQualityTimer = new Timer();
     document.getElementById("peakQualityLight").src = "assets/peakQuality.png";
     document.getElementById("bestTimeDiv").style.backgroundImage = "url('assets/bestTime.png')";
   } else if (peakQuality === true && (videoQuality + rotation < 1325 || audioQuality + audioQualityControlRotation < 1300)) {
@@ -305,33 +321,47 @@ function audioQualityCheck() {
 
 
   if (audioQualityControl.dataset.active == "true") {
-    if (rotation < lastRotationAudio - 150) {
-      audioQuality += 360;
-    } else if (rotation < lastRotationAudio) {
-      // If you've rotated the control backwards, don't count it.
-      audioQuality += lastRotationAudio - rotation;
-    } else if (rotation > lastRotationAudio + 150) {
-      audioQuality -= rotation - lastRotationAudio;
-    } // Save the current rotation of the control for future reference.
-
-
+    if (playing === true){
+      if (rotation < lastRotationAudio - 150) {
+        audioQuality += 360;
+      } else if (rotation < lastRotationAudio) {
+        // If you've rotated the control backwards, don't count it.
+        audioQuality += lastRotationAudio - rotation;
+      } else if (rotation > lastRotationAudio + 150) {
+        audioQuality -= rotation - lastRotationAudio;
+      }
+    } else {
+      audioQuality = -rotation;
+    }
+    // Save the current rotation of the control for future reference.
     lastRotationAudio = getRotation(audioQualityControl);
   } else {
-    // If the user isn't actively rotating the control, give the wheel some momentum.
+    // Give the wheel some momentum
     var previousRotation = rotation;
-
-    if (rotation < lastRotationAudio - 150) {
-      audioQuality += 360;
-      rotation += (rotation + 360 - lastRotationAudio) / 1.3;
-    } else if (rotation > lastRotationAudio + 150) {
-      audioQuality -= rotation - lastRotationAudio;
-      rotation += (rotation - 360 - lastRotationAudio) / 1.3;
-    } else if (rotation < lastRotationAudio) {
-      // If you've rotated the control backwards, don't count it.
-      audioQuality += lastRotationAudio - rotation;
-      rotation += (rotation - lastRotationAudio) / 1.3;
+    if (playing === true) {
+      if (rotation < lastRotationAudio - 150) {
+        audioQuality += 360;
+        rotation += (rotation + 360 - lastRotationAudio) / 1.3;
+      } else if (rotation > lastRotationAudio + 150) {
+        audioQuality -= rotation - lastRotationAudio;
+        rotation += (rotation - 360 - lastRotationAudio) / 1.3;
+      } else if (rotation < lastRotationAudio) {
+        audioQuality += lastRotationAudio - rotation;
+        rotation += (rotation - lastRotationAudio) / 1.3;
+      } else {
+        rotation += (rotation - lastRotationAudio) / 1.3;
+      }
     } else {
-      rotation += (rotation - lastRotationAudio) / 1.3;
+      if (rotation < lastRotationAudio - 150) {
+        rotation += (rotation + 360 - lastRotationAudio) / 1.3;
+      } else if (rotation > lastRotationAudio + 150) {
+        rotation += (rotation - 360 - lastRotationAudio) / 1.3;
+      } else if (rotation < lastRotationAudio) {
+        rotation += (rotation - lastRotationAudio) / 1.3;
+      } else {
+        rotation += (rotation - lastRotationAudio) / 1.3;
+      }
+      audioQuality = -rotation;
     }
 
     lastRotationAudio = previousRotation;
@@ -341,14 +371,14 @@ function audioQualityCheck() {
     var dropShadow = getRotationPoint(20, 20, rotation);
     audioQualityControl.style.filter = "drop-shadow(" + dropShadow[0] + "px " + dropShadow[1] + "px 3px rgba(0,0,0,0.7)";
     audioQualityControl.dataset.angle = rotation;
-  } // Cap the audio quality to 1600.
-
-
+  }
+  // Cap the audio quality to 1600.
   audioQuality = clamp(audioQuality, -rotation, 1600 - rotation); // If the audio quality isn't already 0, slowly bring it down.
 
   if (Math.floor(audioQuality + rotation) > 0) {
     audioQuality -= difficulty / 2;
-  } // If you've maxed out the video quality, don't rotate the dial any further.
+  }
+  // If you've maxed out the video quality, don't rotate the dial any further.
 
 
   if (rotation + audioQuality > 1600) {
@@ -356,18 +386,22 @@ function audioQualityCheck() {
   } else {
     // Otherwise, rotate the dial accordingly.
     document.getElementById("audioDial").style.transform = "rotate(" + ((rotation + audioQuality) / 6.3 - 122) + "deg)";
-  } // Get the embedded YouTube player and tell it to change the volume accordingly.
+  }
+  // Get the embedded YouTube player and tell it to change the volume accordingly.
 
 
-  player.setVolume((rotation + audioQuality) / 13); // Start the audio noise playing if the user has started playing.
+  player.setVolume(((rotation + audioQuality) / 13) * volume );
+  // Start the audio noise playing if the user has started playing.
 
   if (playing === true) {
     document.getElementById("audioNoise").play();
-  } // Get the audio noise and set it's volume accordingly.
+  }
+  // Get the audio noise and set it's volume accordingly.
 
 
-  document.getElementById("audioNoise").volume = clamp(1 - (rotation + audioQuality) / 1300, 0, 1) / 4;
-} // Get an element and return it's rotation from 0 - 360 degrees
+  document.getElementById("audioNoise").volume = clamp(((1 - (rotation + audioQuality) / 1300) * volume), 0, 1) / 4;
+}
+// Get an element and return it's rotation from 0 - 360 degrees
 
 
 function getRotation(target) {
@@ -438,7 +472,7 @@ function blowUp() {
   var audioQualityControlRotation = getRotation(audioQualityControl);
   videoQuality = -videoQualityControlRotation;
   audioQuality = -audioQualityControlRotation;
-  pressureVenting = true; 
+  pressureVenting = true;
   // The current state of the function is a placeholder for a real explosion
 }
 
@@ -472,8 +506,24 @@ function setDifficulty(changed) {
 
     document.getElementById("difficultySlider").value = difficulty;
   }
-} // Thank you Tom Esterez of Stack Overflow!
+} 
+function setVolume(changed) {
+  if (changed == "true") {
+    volume = document.getElementById("volumeSlider").value / 100;
+    localStorage.setItem("volume", volume);
+  } else {
+    volume = parseFloat(localStorage.getItem("volume"));
 
+    if (isNaN(volume)) {
+      volume = 1;
+    }
+
+  }
+  document.getElementById("volumeSlider").value = volume * 100;
+  document.getElementById("recordSound").volume = volume;
+  document.getElementById("tickingSound").volume = volume;
+} 
+// Thank you Tom Esterez of Stack Overflow!
 
 function formatTime(seconds) {
   var h = Math.floor(seconds / 3600);
