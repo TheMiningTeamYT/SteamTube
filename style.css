@@ -24,6 +24,7 @@ I'm making a web toy, not critical infrastructure, ok?
 */
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap');
 @font-face {
+  /* Thank you Hannes Siengalewicz of the defunct site http://www.jestyle.net/ for this font! (Their site is preserved at https://web.archive.org/web/20200711014546/http://www.jestyle.net/ ) You can see their other works at https://www.dafont.com/polenimschaufenster.d722 ! */
   font-family: "Union Agrochem";
   src: url("assets/unionagrochem.ttf");
 }

@@ -186,9 +186,9 @@ function videoQualityCheck() {
       document.getElementById("tickingSound").pause();
     }
   } else if (playerReady === false) {
-    document.getElementById("turnCrankToPlayText").innerHTML = "COPYRIGHT IS BROKEN...";
+    document.getElementById("turnCrankToPlayText").innerHTML = "LOADING...";
   } else {
-    document.getElementById("turnCrankToPlayText").innerHTML = "THE YOUTUBE EMBEDDING RULES PREVENTED ME DOING SOMETHING SPECIAL...";
+    document.getElementById("turnCrankToPlayText").innerHTML = "TURN THE VIDEO CRANK TO UNPAUSE VIDEO";
 
     if (rotation != lastRotationVideo && !isNaN(rotation) && videoQualityControl.dataset.active == "true") {
       // Start the video playing
@@ -506,6 +506,7 @@ function setDifficulty(changed) {
 
     document.getElementById("difficultySlider").value = difficulty;
   }
+  document.getElementById("difficultyLevel").innerHTML = "Please choose your difficulty level.<br>Current dificulty level is " + difficulty + ".";
 } 
 function setVolume(changed) {
   if (changed == "true") {
@@ -522,6 +523,7 @@ function setVolume(changed) {
   document.getElementById("volumeSlider").value = volume * 100;
   document.getElementById("recordSound").volume = volume;
   document.getElementById("tickingSound").volume = volume;
+  document.getElementById("volumeLevel").innerHTML = "Please choose your volume level.<br>Current volume level is " + Math.round((volume * 100)) + "%.";
 } 
 // Thank you Tom Esterez of Stack Overflow!
 

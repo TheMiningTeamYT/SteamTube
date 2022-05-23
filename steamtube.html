@@ -68,7 +68,7 @@ The Desmos Graphing Calculator.
             "
           />
           <div id="turnCrankToPlay" class="video">
-            <p id="turnCrankToPlayText">COPYRIGHT IS BROKEN...</p>
+            <p id="turnCrankToPlayText">LOADING...</p>
           </div>
           <img src="assets/noise.webp" class="video" id="noise" />
           <div id="player" class="video"></div>
@@ -141,8 +141,8 @@ The Desmos Graphing Calculator.
             margin: 0;
           "
         >
-          <p class="smalltext" style="font-family: 'Union Agrochem'">
-            Please choose your difficulty level.
+          <p class="smalltext" id="difficultyLevel" style="font-family: 'Union Agrochem'">
+            Please choose your difficulty level.<br>Current dificulty level is 6.
           </p>
           <div>
             <input
@@ -160,8 +160,8 @@ The Desmos Graphing Calculator.
             flex-direction: column;
           "
         >
-          <p class="smalltext" style="font-family: 'Union Agrochem'">
-            Please choose your volume level.
+          <p class="smalltext" id="volumeLevel" style="font-family: 'Union Agrochem'">
+            Please choose your volume level.<br>Current volume level is 7.
           </p>
           <div>
             <input
@@ -191,23 +191,23 @@ The Desmos Graphing Calculator.
       <p class="subheading">A brief history of this page.</p>
       <p class="smalltext">
         On March 19, 2010 a freelance copywriter and creative director named
-        <a href="https://www.mikelacher.com/">Mark Lacher</a> released on his
+        <a href="https://www.mikelacher.com/">Mark Lacher</a>&nbsp;released on his
         site Wonder-Tonic a game entitled "Steam-Powered Youtube." For 3 years,
         many people enjoyed this game, but it went under my radar until 2013,
-        when it was
+        when it was&nbsp;
         <a href="https://www.youtube.com/watch?v=Zux_GebV374"
           >featured in an episode of <i>DONG</i></a
-        >
+        >&nbsp;
         (standing for [things you can] Do Online Now, Guys). That video brought
-        to my attention, and I enjoyed it.<br /><br />
+        to my attention, and I enjoyed it.<br/><br/>
         However, the game was made in Flash, and as we all know, in 2021, Adobe
         killed Flash, and with it died this game, until now. This page contains
-        the best recreation of the old Steam-Powered Youtube I can create.<br /><br />
+        the best recreation of the old Steam-Powered Youtube I can create.<br/><br />
         Please check out and support the continuing work of this game's original
         developer, at his site
-        <a href="https://www.mikelacher.com/">here.</a> However, before you do
+        <a href="https://www.mikelacher.com/">here.</a>&nbsp;However, before you do
         that, please, take a moment to enjoy this game, brought back from beyond
-        the grave, just for you!<br /><br />
+        the grave, just for you!<br/><br/>
         Also, if you're interested, you can check out the source code for this
         game <a href="https://github.com/TheMiningTeamYT/SteamTube">here!</a>
       </p>
@@ -244,11 +244,7 @@ The Desmos Graphing Calculator.
         player = new YT.Player("player", {
           height: "260",
           width: "450",
-          /* I wanted to include Weird Al's "Don't Download this song" here, but I couldn't. Thanks Youtube.
-          But also, as I learned, YouTube is kinda backed into a corner into doing this by international copyright law.
-          So, FUCK INTERNATIONAL COPYRIGHT LAW but i don't want to go to prision so this is best I can do.
-          (ignoring the fact that this whole project is one massive copyright infrigement)*/
-          videoId: "1Jwo5qc78QU",
+          videoId: "Zux_GebV374",
           playerVars: {
             playsinline: 1,
             controls: 0,
