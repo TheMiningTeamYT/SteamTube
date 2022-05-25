@@ -113,6 +113,11 @@ var overheating = false;
 var peakQuality = false;
 var playerReady = false;
 var bestTime = parseFloat(localStorage.getItem("bestTime"));
+if (isNaN(bestTime)) {
+  bestTime = 0;
+  localStorage.setItem("bestTime", bestTime);
+}
+document.getElementById("bestTimeRecord").innerHTML = formatTime(bestTime);
 // Get the difficulty
 var difficulty = 6;
 setDifficulty("false"); 
