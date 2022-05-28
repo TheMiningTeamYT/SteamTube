@@ -135,6 +135,7 @@ input {
 #noise {
   z-index: 2;
   opacity: 0.6;
+  filter: blur(5px);
 }
 #player {
   z-index: 1;
@@ -185,7 +186,6 @@ input {
   background-color: rgba(0,0,0,0.6); 
   z-index: 3; 
   align-items: center; 
-  backdrop-filter: blur(5px);
 }
 .dial div {
   width: 100%;

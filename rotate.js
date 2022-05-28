@@ -94,6 +94,7 @@ function DragObject(target) {
     y = e.clientY - center.y;
     d = R2D * Math.atan2(y, x);
     rotation = d - startAngle;
+
     // Because active is a global variable, we need to get the active state for this specific target.
     active = target.dataset.active;
     if (active == "true") {
@@ -115,7 +116,8 @@ function DragObject(target) {
 }
 function springBack(target) {
   var angle = parseInt(target.dataset.angle);
-  // if angle is negative
+  
+  // If the angle is negative, make it positive again.
   if (angle < 0) {
     angle += 360;
   }

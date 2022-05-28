@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <!--
+License: GPLv3
 Written By:
 Logan C.
 
@@ -23,54 +24,39 @@ The Desmos Graphing Calculator.
     <meta charset="utf-8"/>
     <title>Steam-Powered YouTube</title>
     <link rel="stylesheet" href="style.css" />
-    <link rel="icon" type="image/png" href="../favicon.png" />
+    <link rel="icon" type="image/png" href="../favicon.png"/>
   </head>
   <body>
-    <div id="topbar">
-      <a href="../home.html">Go Back Home.</a>
-    </div>
     <div style="flex-direction: column; width: 100%; align-items: center">
       <img src="assets/header.jpg" style="width: 900px; height: 96px" />
-      <p
-        style="
-          margin: 2px 2px 2px 20px;
-          font-family: 'Union Agrochem';
-          font-size: 20px;
-          color: white;
-        "
-      >
+      <p style="margin: 2px 2px 2px 20px; font-family: 'Union Agrochem'; font-size: 20px; color: white;">
         Recreated By: Logan C.
       </p>
     </div>
-    <div
-      style="
-        display: flex;
-        width: 100%;
-        user-select: none;
-      "
-    >
+    <noscript>
+      <style>
+        body {
+          overflow: hidden;
+        }
+      </style>
+      <div style="position: absolute; width: 100vw; height: 100vh; background-color: black; z-index: 101;">
+        <p style="font-family:'Union Agrochem'; color: white; font-size: 50px;">
+          Sorry, but without Javascript enabled, you can't play this game.
+        </p>
+      </div>
+    </noscript>
+    <div style="display: flex; width: 100%; user-select: none;">
       <div class="mainContainer">
         <div>
           <input type="text" id="videoUrl" />
           <img id="loadButton" src="assets/littleButton.png" />
         </div>
         <div class="videoContainer">
-          <img
-            src="assets/screen-overlay.png"
-            style="
-              opacity: 0.8;
-              z-index: 4;
-              width: 420px;
-              height: 230px;
-              left: -213px;
-              top: -113px;
-              position: absolute;
-            "
-          />
+          <img id="screenOverlay" src="assets/screen-overlay.png" style="opacity: 0.8; z-index: 4; width: 420px; height: 230px; left: -213px; top: -113px; position: absolute;"/>
           <div id="turnCrankToPlay" class="video">
             <p id="turnCrankToPlayText">LOADING...</p>
           </div>
-          <img src="assets/noise.webp" class="video" id="noise" />
+          <img src="assets/noise.gif" class="video" id="noise" />
           <div id="player" class="video"></div>
         </div>
         <div>
@@ -78,12 +64,9 @@ The Desmos Graphing Calculator.
           <div class="dial" id="videoDial"></div>
         </div>
         <div
-          style="
-            margin-top: 20px;
-          "
-        >
+          style="margin-top: 20px;">
           <div id="audioQualityControl" class="qualityControl">
-            <img src="assets/qualityControlWheel.png" />
+            <img src="assets/qualityControlWheel.png"/>
           </div>
           <img src="assets/bigButton.png" id="pressureVent" draggable="false" />
           <div id="pressureDial" class="dial"></div>
@@ -91,16 +74,8 @@ The Desmos Graphing Calculator.
             <img id="overheatLight" src="assets/noOverheat.png" />
             <img id="peakQualityLight" src="assets/notPeakQuality.png" />
             <div
-              style="
-                flex-direction: row;
-                align-items: center;
-                margin: 0;
-              "
-            >
-              <div
-                id="bestTimeDiv"
-                style="background-image: url('assets/notBestTime.png')"
-              >
+              style="flex-direction: row; align-items: center; margin: 0;">
+              <div id="bestTimeDiv" style="background-image: url('assets/notBestTime.png')">
                 <p id="bestTimeText" class="smalltext">0:00</p>
               </div>
               <div style="background-image: url('assets/bestTimeRecord.png')">
@@ -108,15 +83,7 @@ The Desmos Graphing Calculator.
               </div>
             </div>
             <p
-              style="
-                font-family: 'Union Agrochem';
-                color: #6d0601;
-                position: relative;
-                left: 40px;
-                font-size: 20px;
-                margin-top: 5px;
-              "
-            >
+              style="font-family: 'Union Agrochem'; color: #6d0601; position: relative; left: 40px; font-size: 20px; margin-top: 5px;">
               Best Time
             </p>
           </div>
@@ -127,64 +94,36 @@ The Desmos Graphing Calculator.
       </div>
     </div>
     <div
-      style="
-        flex-direction: column;
-        width: 100%;
-        align-items: center;
-        color: white;
-      "
-    >
+      style="flex-direction: column; width: 100%; align-items: center; color: white;">
       <div>
         <div
-          style="
-            flex-direction: column;
-            margin: 0;
-          "
-        >
+          style="flex-direction: column; margin: 0;">
           <p class="smalltext" id="difficultyLevel" style="font-family: 'Union Agrochem'">
             Please choose your difficulty level.<br>Current dificulty level is 6.
           </p>
           <div>
-            <input
-              id="difficultySlider"
-              type="range"
-              min="1"
-              max="12"
-              value="6"
-              oninput="setDifficulty('true')"
-            />
+            <input id="difficultySlider" type="range" min="1" max="12" value="6" oninput="setDifficulty('true')"/>
           </div>
         </div>
-        <div
-          style="
-            flex-direction: column;
-          "
-        >
+        <div style="flex-direction: column;">
           <p class="smalltext" id="volumeLevel" style="font-family: 'Union Agrochem'">
-            Please choose your volume level.<br>Current volume level is 7.
+            Please choose your volume level.<br>Current volume level is 100.
           </p>
           <div>
-            <input
-              id="volumeSlider"
-              type="range"
-              min="0"
-              max="100"
-              value="100"
-              oninput="setVolume('true')"
-            />
+            <input id="volumeSlider" type="range" min="0" max="100" value="100" oninput="setVolume('true')"/>
           </div>
         </div>  
       </div>
       <p class="subheading">HOW TO PLAY:</p>
       <p class="smalltext">
         Choose a video. Enter the URL of any YouTube video (except those that
-        prevent embedding) and click Load.<br /><br />
+        prevent embedding) and click Load.<br><br>
         Turn the audio and video cranks to make the video play. The higher the
         gauges go, the better the quality. Get the needles into the green areas
-        for peak quality. See how long you can maintain peak quality.<br /><br />
-        Watch the pressure gauge. You have to click Vent before it maxes out.<br /><br />
+        for peak quality. See how long you can maintain peak quality.<br><br>
+        Watch the pressure gauge. You have to click Vent before it maxes out.<br><br>
         Originally Created by:
-        <a href="http://wondertonic.tumblr.com/">Wonder-Tonic</a><br /><br />
+        <a href="http://wondertonic.tumblr.com/">Wonder-Tonic</a><br><br>
         Recreated in HTML and Javascript by:
         <a href="https://www.bahjeez.com/logan">Logan C.</a>
       </p>
@@ -195,66 +134,73 @@ The Desmos Graphing Calculator.
         site Wonder-Tonic a game entitled "Steam-Powered Youtube." For 3 years,
         many people enjoyed this game, but it went under my radar until 2013,
         when it was&nbsp;
-        <a href="https://www.youtube.com/watch?v=Zux_GebV374"
-          >featured in an episode of <i>DONG</i></a
-        >&nbsp;
+        <a href="https://www.youtube.com/watch?v=Zux_GebV374">featured in an episode of <i>DONG</i></a>&nbsp;
         (standing for [things you can] Do Online Now, Guys). That video brought
-        to my attention, and I enjoyed it.<br/><br/>
+        to my attention, and I enjoyed it.<br><br>
         However, the game was made in Flash, and as we all know, in 2021, Adobe
         killed Flash, and with it died this game, until now. This page contains
-        the best recreation of the old Steam-Powered Youtube I can create.<br/><br />
+        the best recreation of the old Steam-Powered Youtube I can create.<br><br>
         Please check out and support the continuing work of this game's original
         developer, at his site
         <a href="https://www.mikelacher.com/">here.</a>&nbsp;However, before you do
         that, please, take a moment to enjoy this game, brought back from beyond
-        the grave, just for you!<br/><br/>
+        the grave, just for you!<br><br>
         Also, if you're interested, you can check out the source code for this
         game <a href="https://github.com/TheMiningTeamYT/SteamTube">here!</a>
       </p>
+      <p class="smalltext">
+        Credit for the warning bell sound: <br><a href="https://www.youtube.com/watch?v=9CMOkeXBTV4">Sześcian https://www.youtube.com/watch?v=9CMOkeXBTV4</a><br>
+        License for <a href="https://github.com/bestiejs/platform.js">platform.js</a>: <br><a href="https://github.com/bestiejs/platform.js/blob/master/LICENSE">https://github.com/bestiejs/platform.js/blob/master/LICENSE.</a><br>
+        Thank you so much developers of platform.js!
+      </p>
     </div>
-    <audio
-      id="audioNoise"
-      src="assets/noise.mp3"
-      preload="auto"
-      loop="true"
-    ></audio>
-    <audio
-      id="recordSound"
-      src="assets/HissSound.mp3"
-      preload="auto"
-      loop="true"
-    ></audio>
+    <audio id="audioNoise" src="assets/noise.mp3" preload="auto" loop="true"></audio>
+    <audio id="recordSound" src="assets/HissSound.mp3" preload="auto" loop="true"></audio>
     <audio id="ventingSound" src="assets/SteamSound.mp3" preload="auto"></audio>
-    <audio
-      id="tickingSound"
-      src="assets/TickSound.mp3"
-      preload="auto"
-      loop="true"
-    ></audio>
+    <audio id="tickingSound" src="assets/TickSound.mp3" preload="auto" loop="true"></audio>
+    <audio id="warningSound" src="assets/warning.mp3" preload="auto"></audio>
     <!-- Thanks J. Voigt of https://bl.ocks.org/joyrexus/7207044 ! -->
     <script src="rotate.js"></script>
+    <!-- Credit to the platform.js team!-->
+    <script src="platform.js"></script>
     <script src="main.js"></script>
     <script>
       var tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
       var firstScriptTag = document.getElementsByTagName("script")[0];
       firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
       function onYouTubeIframeAPIReady() {
-        player = new YT.Player("player", {
-          height: "260",
-          width: "450",
-          videoId: "Zux_GebV374",
-          playerVars: {
-            playsinline: 1,
-            controls: 0,
-            autoplay: 0,
-          },
-          events: {
-            onReady: onYTPlayerReady,
-            onStateChange: onYTPlayerStateChange,
-          },
-        });
+        if (mobile === true) {
+          player = new YT.Player("player", {
+            height: "260",
+            width: "450",
+            videoId: "Zux_GebV374",
+            playerVars: {
+              playsinline: 1,
+              controls: 1,
+              autoplay: 0,
+            },
+            events: {
+              onReady: onYTPlayerReady,
+              onStateChange: onYTPlayerStateChange,
+            },
+          });
+        } else {
+          player = new YT.Player("player", {
+            height: "260",
+            width: "450",
+            videoId: "Zux_GebV374",
+            playerVars: {
+              playsinline: 1,
+              controls: 0,
+              autoplay: 0,
+            },
+            events: {
+              onReady: onYTPlayerReady,
+              onStateChange: onYTPlayerStateChange,
+            },
+          });
+        }
       }
       function onYTPlayerReady() {
         playerReady = true;
