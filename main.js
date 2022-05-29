@@ -82,7 +82,7 @@ var volume = 100;
 setVolume('false');
 
 // Update the style of the .video class if the user is using a version of firefox prior to 52.
-if (platform.version < 52 && (platform.name == "Firefox")) {
+if ((platform.version < 52 && (platform.name == "Firefox"))) {
   var videoElementArray = document.getElementsByClassName("video");
   var loops = 0;
 
@@ -94,7 +94,7 @@ if (platform.version < 52 && (platform.name == "Firefox")) {
 } else if (platform.os.family == "iOS" || platform.os.family == "Android") {
   // If the user is on an iOS or Android device, set the mobile variable to true.
   mobile = true;
-  alert("You are playing on mobile. On mobile, autoplay doesn't work. Please press the \"Play\" button on the YouTube player to start the video.\n Also note that the audio will not play on mobile, or may not play at the correct volume.\n For the best experience, please play on desktop.");
+  alert("You are playing on mobile. On mobile, autoplay may not work. If this happens, please press the \"Play\" button on the YouTube player to start the video.\n Also note that the audio may play on mobile, or may not play at the correct volume.\n For the best experience, please play on desktop.");
   if (platform.os.family == "iOS") {
     document.getElementById("loadButton").style.top = "22px";
     document.getElementById("loadButton").style.left = "62px";
@@ -111,53 +111,37 @@ var peakQualityTimer = "";
 document.getElementById("audioNoise").volume = 0.25; 
 
 // Add the event listener for the vent pressure button.
-pressureVentButton.addEventListener("mousedown", function () {
-  pressureVenting = true;
-  pressureVentButton.src = "assets/bigButtonPressed.png";
-  setTimeout(animatePressureVentButton, 200);
-});
+if (mobile === false) {
+  pressureVentButton.addEventListener("mousedown", function () {
+    pressureVenting = true;
+    pressureVentButton.src = "assets/bigButtonPressed.png";
+    setTimeout(animatePressureVentButton, 200);
+  });
+} else {
+  pressureVentButton.addEventListener("touchstart", function () {
+    pressureVenting = true;
+    pressureVentButton.src = "assets/bigButtonPressed.png";
+    setTimeout(animatePressureVentButton, 200);
+  });
+}
 
 // Add event listener for the load button.
-document.getElementById("loadButton").addEventListener("click", function () {
-  document.getElementById("loadButton").src = "assets/littleButtonPressed.png";
-  var loadButtonAnimationTimeout = setTimeout(animateLoadButton, 200, loadButtonAnimationTimeout); 
-  
-  // Stupid YouTube API won't accept normal YouTube URLs for loadVideoByUrl, so I have to do this instead.
-  var videoid = document.getElementById("videoUrl").value.replace(/https\:\/\/|www.youtube.com\/watch\?v=|youtu.be\//g, ""); 
-  
-  // Thanks Leo and Samina Zahid of Stack Overflow!
-  var remove_after = videoid.indexOf("&");
-
-  if (remove_after != -1) {
-    videoid = videoid.substring(0, remove_after);
-  } 
-
-  // Load video
-  player.cueVideoById({
-    videoId: videoid
-  }); 
-
-  // Reset the "Turn video crank to unpause" screen
-  document.getElementById("turnCrankToPlay").style.opacity = 1;
-  document.getElementById("noise").style.opacity = 0.6; 
-
-  // Reset the video and audio quality, as well as the pressure and playing state.
-  var videoQualityControlRotation = getRotation(videoQualityControl);
-  var audioQualityControlRotation = getRotation(audioQualityControl);
-  videoQuality = -videoQualityControlRotation;
-  audioQuality = -audioQualityControlRotation;
-  pressure = 0;
-  playing = false;
-  playerReady = false;
-  document.getElementById("recordSound").pause();
-  document.getElementById("audioNoise").pause();
-  if (mobile === true) {
-    document.getElementById("screenOverlay").style.zIndex = "4";
-    document.getElementById("turnCrankToPlay").style.zIndex = "3";
-    document.getElementById("noise").style.zIndex = "2";
-    document.getElementById("player").style.zIndex = "1";
+document.getElementById("loadButton").addEventListener("click", load);
+document.getElementById("videoUrl").addEventListener("keydown", function(e) {
+  if (e.key == "Enter") {
+    load();
   }
-}); 
+})
+
+if (mobile === true) {
+  document.getElementById("screenOverlay").addEventListener("touchstart", function(e) {
+    e.target.style.zIndex = "0";
+    var makeOverlayAppearTimeout = setTimeout(function(timeout) {
+      e.target.style.zIndex = "4";
+      clearTimeout(timeout);
+    }, 3000, makeOverlayAppearTimeout);
+  });
+}
 
 // Set all of the intervals for the game functions that need to run every frame (~1/30 second)
 setInterval(videoQualityCheck, 33);
@@ -189,7 +173,6 @@ function videoQualityCheck() {
     if (rotation != lastRotationVideo && !isNaN(rotation) && videoQualityControl.dataset.active == "true") {
       // If the user is on mobile, make it so that everything infront of the YouTube player is hidden.
       if (mobile === true) {
-        document.getElementById("screenOverlay").style.zIndex = "0";
         document.getElementById("turnCrankToPlay").style.zIndex = "0";
         document.getElementById("noise").style.zIndex = "0";
         document.getElementById("player").style.zIndex = "1";
@@ -406,11 +389,7 @@ function audioQualityCheck() {
   }
   
   // Get the audio noise and set it's volume accordingly.
-  if (mobile === true) {
-    document.getElementById("audioNoise").volume = clamp(((1 - (rotation + audioQuality) / 1300) * volume), 0, 1);
-  } else {
-    document.getElementById("audioNoise").volume = clamp(((1 - (rotation + audioQuality) / 1300) * volume), 0, 1) / 4;
-  }
+  document.getElementById("audioNoise").volume = clamp(((1 - (rotation + audioQuality) / 1300) * volume), 0, 1) / 4;
 }
 
 // Get an element and return it's rotation from 0 - 360 degrees
@@ -548,4 +527,45 @@ function formatTime(seconds) {
   var m = Math.floor(seconds % 3600 / 60);
   var s = Math.round(seconds % 60);
   return [h, m > 9 ? m : h ? "0" + m : m || "0", s > 9 ? s : "0" + s].filter(Boolean).join(":");
+}
+
+function load() {
+  document.getElementById("loadButton").src = "assets/littleButtonPressed.png";
+  var loadButtonAnimationTimeout = setTimeout(animateLoadButton, 200, loadButtonAnimationTimeout); 
+  
+  // Stupid YouTube API won't accept normal YouTube URLs for loadVideoByUrl, so I have to do this instead.
+  var videoid = document.getElementById("videoUrl").value.replace(/https\:\/\/|www.youtube.com\/watch\?v=|youtu.be\//g, ""); 
+  
+  // Thanks Leo and Samina Zahid of Stack Overflow!
+  var remove_after = videoid.indexOf("&");
+
+  if (remove_after != -1) {
+    videoid = videoid.substring(0, remove_after);
+  } 
+
+  // Load video
+  player.cueVideoById({
+    videoId: videoid
+  }); 
+
+  // Reset the "Turn video crank to unpause" screen
+  document.getElementById("turnCrankToPlay").style.opacity = 1;
+  document.getElementById("noise").style.opacity = 0.6; 
+
+  // Reset the video and audio quality, as well as the pressure and playing state.
+  var videoQualityControlRotation = getRotation(videoQualityControl);
+  var audioQualityControlRotation = getRotation(audioQualityControl);
+  videoQuality = -videoQualityControlRotation;
+  audioQuality = -audioQualityControlRotation;
+  pressure = 0;
+  playing = false;
+  playerReady = false;
+  document.getElementById("recordSound").pause();
+  document.getElementById("audioNoise").pause();
+  if (mobile === true) {
+    document.getElementById("screenOverlay").style.zIndex = "4";
+    document.getElementById("turnCrankToPlay").style.zIndex = "3";
+    document.getElementById("noise").style.zIndex = "2";
+    document.getElementById("player").style.zIndex = "1";
+  }
 }

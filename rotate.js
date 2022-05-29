@@ -59,14 +59,16 @@ function DragObject(target) {
     y: 0
   };
 
-  document.ontouchmove = function(e) {
-    return e.preventDefault();
-  };
-
   init = function() {
-    target.addEventListener("mousedown", start, false);
-    target.addEventListener("mousemove", rotate, false);
-    return document.addEventListener("mouseup", stop, false);
+    if (mobile === false) {
+      target.addEventListener("mousedown", start, false);
+      target.addEventListener("mousemove", rotate, false);
+      return document.addEventListener("mouseup", stop, false);
+    } else {
+      target.addEventListener("touchstart", start, false);
+      target.addEventListener("touchmove", rotate, false);
+      return document.addEventListener("touchend", stop, false);
+    }
   };
 
   R2D = 180 / Math.PI;
@@ -79,8 +81,13 @@ function DragObject(target) {
       x: left + (width / 2),
       y: top + (height / 2)
     };
-    x = e.clientX - center.x;
-    y = e.clientY - center.y;
+    if (mobile === false) {
+      x = e.clientX - center.x;
+      y = e.clientY - center.y;
+    } else {
+      x = e.touches[0].clientX - center.x;
+      y = e.touches[0].clientY - center.y;
+    }
     startAngle = R2D * Math.atan2(y, x);
     target.dataset.active = true;
     return active = true;
@@ -90,8 +97,13 @@ function DragObject(target) {
     angle = parseFloat(this.dataset.angle);
     var d, x, y;
     e.preventDefault();
-    x = e.clientX - center.x;
-    y = e.clientY - center.y;
+    if (mobile === false) {
+      x = e.clientX - center.x;
+      y = e.clientY - center.y;
+    } else {
+      x = e.touches[0].clientX - center.x;
+      y = e.touches[0].clientY - center.y;
+    }
     d = R2D * Math.atan2(y, x);
     rotation = d - startAngle;
 

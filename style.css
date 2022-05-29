@@ -53,6 +53,7 @@ input {
   user-select: none;
   /* For Fireox 35 */
   -moz-user-select: none;
+  -webkit-user-select: none;
 }
 .qualityControl {
 	display: flex;
@@ -181,6 +182,9 @@ input {
   background-color: #202020;
   font-family: 'Comfortaa', 'Times New Roman', cursive;
   margin: 0;
+  position: sticky;
+  z-index: 100;
+  top: 0;
 }
 #turnCrankToPlay {
   background-color: rgba(0,0,0,0.6); 
