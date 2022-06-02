@@ -65,7 +65,7 @@ function DragObject(target) {
     } else {
       target.addEventListener("touchstart", start, false);
       target.addEventListener("touchmove", rotate, false);
-      return document.addEventListener("touchend", stop, false);
+      return target.addEventListener("touchend", stop, false);
     }
   };
 
