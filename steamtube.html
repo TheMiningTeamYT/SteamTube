@@ -25,11 +25,12 @@ The Desmos Graphing Calculator.
     <title>Steam-Powered YouTube</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="icon" type="image/png" href="../favicon.png"/>
+    <!-- These are here for social media to grab the title and thumbnail. -->
+    <meta property="og:title" content="Steam-Powered YouTube">
+    <meta property="og:url" content="https://www.bahjeez.com/logan/steamtube/steamtube.html">
+    <meta property="og:image" content="https://www.bahjeez.com/logan/steamtube/assets/Steam Powered Youtube.jpg">
   </head>
   <body>
-    <div id="topbar">
-      <a href="../home.html">Go Back Home.</a>
-    </div>
     <div style="flex-direction: column; width: 100%; align-items: center">
       <img src="assets/header.jpg" style="width: 900px; height: 96px" />
       <p style="margin: 2px 2px 2px 20px; font-family: 'Union Agrochem'; font-size: 20px; color: white;">
@@ -55,7 +56,7 @@ The Desmos Graphing Calculator.
           <img id="loadButton" src="assets/littleButton.png" />
         </div>
         <div class="videoContainer">
-          <img id="screenOverlay" src="assets/screen-overlay.png" style="opacity: 0.8; z-index: 4; width: 420px; height: 230px; left: -213px; top: -113px; position: absolute;"/>
+          <img id="screenOverlay" src="assets/screen-overlay.png" style="opacity: 0.8; z-index: 4; width: 422px; height: 232px; left: -214px; top: -113px; position: absolute;"/>
           <div id="turnCrankToPlay" class="video">
             <p id="turnCrankToPlayText">LOADING...</p>
           </div>
@@ -85,8 +86,7 @@ The Desmos Graphing Calculator.
                 <p id="bestTimeRecord" class="smalltext">0:00</p>
               </div>
             </div>
-            <p
-              style="font-family: 'Union Agrochem'; color: #6d0601; position: relative; left: 40px; font-size: 20px; margin-top: 5px;">
+            <p style="font-family: 'Union Agrochem'; color: #6d0601; position: relative; left: 40px; font-size: 20px; margin-top: 5px;">
               Best Time
             </p>
           </div>
@@ -115,7 +115,7 @@ The Desmos Graphing Calculator.
           <div>
             <input id="volumeSlider" type="range" min="0" max="100" value="100" oninput="setVolume('true')"/>
           </div>
-        </div>  
+        </div>
       </div>
       <p class="subheading">HOW TO PLAY:</p>
       <p class="smalltext">
@@ -153,7 +153,7 @@ The Desmos Graphing Calculator.
       </p>
       <p class="smalltext">
         Credit for the warning bell sound: <br><a href="https://www.youtube.com/watch?v=9CMOkeXBTV4">Sześcian https://www.youtube.com/watch?v=9CMOkeXBTV4</a><br>
-        License for <a href="https://github.com/bestiejs/platform.js">platform.js</a>: <br><a href="https://github.com/bestiejs/platform.js/blob/master/LICENSE">https://github.com/bestiejs/platform.js/blob/master/LICENSE.</a><br>
+        License for <a href="https://github.com/bestiejs/platform.js">platform.js</a>: <br><a href="https://github.com/bestiejs/platform.js/blob/master/LICENSE">The MIT License.</a><br>
         Thank you so much developers of platform.js!
       </p>
     </div>
@@ -167,6 +167,7 @@ The Desmos Graphing Calculator.
     <script src="main.js"></script>
     <!-- Thanks J. Voigt of https://bl.ocks.org/joyrexus/7207044 ! -->
     <script src="rotate.js"></script>
+    <script src= "https://player.twitch.tv/js/embed/v1.js"></script>
     <script>
       var tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
@@ -209,7 +210,7 @@ The Desmos Graphing Calculator.
         playerReady = true;
       }
       function onYTPlayerStateChange(event) {
-        if (event.data == YT.PlayerState.CUED) {
+        if (event.data == 5) {
           playerReady = true;
         }
       }

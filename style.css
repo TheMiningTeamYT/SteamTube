@@ -105,6 +105,7 @@ input {
 .smalltext {
   font-family: 'Comfortaa', 'Times New Roman', cursive;
   font-size: 18px;
+  color: white;
   margin: 10px;
 }
 .caption {
@@ -141,6 +142,7 @@ input {
 #player {
   z-index: 1;
   position: absolute;
+  overflow: hidden;
 }
 #pressureDial {
   position: relative;
@@ -231,4 +233,8 @@ input {
 #statusLights div div p {
   font-size: 24px; 
   font-family: 'Union Agrochem';
+}
+#mobileCheckbox {
+  width: 15px;
+  height: 15px;
 }

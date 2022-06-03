@@ -34,9 +34,9 @@ videoQualityControl.dataset.angle = 0;
 // springBack handles ensuring the angle of rotation for the controls never exceeds 360 degrees.
 // The name "springBack" is holdover from when I had the wheel spin back to it's starting locaton.
 DragObject(audioQualityControl);
+DragObject(videoQualityControl);
 // Check the rotation of the controls every ~1/30 of a second.
 setInterval(springBack, 33, audioQualityControl);
-DragObject(videoQualityControl);
 setInterval(springBack, 33, videoQualityControl);
 
 // Code I have a hard time understanding.
@@ -44,15 +44,11 @@ setInterval(springBack, 33, videoQualityControl);
 function DragObject(target) {
   var R2D, center, init, rotate, rotation, start, startAngle, stop;
 
-  active = false;
+  var active = false;
 
-  angle = 0;
+  var angle, rotation, startAngle = 0;
 
-  rotation = 0;
-
-  startAngle = 0;
-
-  center = {
+  var center = {
     x: 0,
     y: 0
   };
@@ -141,7 +137,7 @@ function DragObject(target) {
 
 }
 function springBack(target) {
-  var angle = parseInt(target.dataset.angle);
+  var angle = parseFloat(target.dataset.angle);
   
   // If the angle is negative, make it positive again.
   if (angle < 0) {
