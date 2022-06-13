@@ -72,20 +72,23 @@ var Timer = /*#__PURE__*/function () {
 
 // The videoPlayer object is to provide a more convenient way to interact with the HTML <video> object for embedding video files, as well as to add needed functions for this use case (destroy(), and the ability to embed the <video> element inside a div of a specific id).
 var videoPlayer = /*#__PURE__*/function () {
-  function videoPlayer(id, url) {
+  function videoPlayer(id, options) {
     _classCallCheck(this, videoPlayer);
 
     this.videoElement = document.createElement("VIDEO");
-    this.videoElement.src = url;
-    this.videoElement.style.height = "100%";
-    this.videoElement.style.width = "100%";
+    this.videoElement.src = options.url;
+    this.videoElement.style.height = options.height;
+    this.videoElement.style.width = options.width;
     this.videoElement.style.margin = "0px";
     this.videoElement.style.backgroundColor = "black";
-    this.videoElement.controls = false;
+    this.videoElement.controls = options.controls;
     var videoElement = this.videoElement;
     this.videoElement.addEventListener("ended", function() {
       videoElement.src = "";
     });
+    this.videoElement.addEventListener("loadeddata", function() {
+      playerReady = true;
+    })
     document.getElementById(id).appendChild(this.videoElement);
   }
 
@@ -123,26 +126,26 @@ var peakQuality = false;
 var playerReady = false;
 var playerType = "YouTube";
 var mobile = false;
-var bestTime = parseFloat(localStorage.getItem("bestTime"));
-
-if (isNaN(bestTime)) {
-  bestTime = 0;
-  localStorage.setItem("bestTime", bestTime);
-}
-
-document.getElementById("bestTimeRecord").innerHTML = formatTime(bestTime); 
-
 // Define global var difficulty first so that it can be used by setDifficulty
-var difficulty = 6; 
-
-// Get the difficulty
-setDifficulty("false"); 
-
+var difficulty = 6;  
 // Define global var volume first so that it can be used by setVolume
 var volume = 100; 
+if ((platform.os.family == "Windows XP") && (platform.version > 35 && platform.name == "Firefox")) {
+   bestTime = 0;
+} else {
+   var bestTime = parseFloat(localStorage.getItem("bestTime"));
 
-// Get the volume.
-setVolume('false'); 
+   if (isNaN(bestTime)) {
+     bestTime = 0;
+     localStorage.setItem("bestTime", bestTime);
+   }
+
+   document.getElementById("bestTimeRecord").innerHTML = formatTime(bestTime); 
+   // Get the difficulty
+   setDifficulty("false"); 
+   // Get the volume.
+   setVolume('false'); 
+}
 
 // Update the style of the .video class if the user is using a version of firefox prior to 52.
 if (platform.version < 52 && platform.name == "Firefox") {
@@ -163,6 +166,13 @@ if (platform.version < 52 && platform.name == "Firefox") {
   }
 } 
 
+if (platform.os.family == "Windows XP") {
+  var audioNoise = document.createElement("AUDIO");
+  audioNoise.src = "assets/noise.mp3";
+  audioNoise.loop = true;
+  document.body.appendChild(audioNoise);
+}
+
 // Attach all the elements I need to variables.
 var videoQualityControl = document.getElementById("videoQualityControl");
 var audioQualityControl = document.getElementById("audioQualityControl");
@@ -170,7 +180,18 @@ var pressureVentButton = document.getElementById("pressureVent");
 var peakQualityTimer = ""; 
 
 // Make sure you don't make the player's ear's bleed.
-document.getElementById("audioNoise").volume = 0.25; 
+// Thank you Zach Denton of https://noisehack.com/generate-noise-web-audio-api/ !
+if (platform.os.family == "Windows XP") {
+	audioNoise.volume = 0.25;
+} else {
+	var audioContext = new (window.webkitAudioContext || window.AudioContext)();
+	var pinkNoise = audioContext.createPinkNoise();
+	var pinkGain = audioContext.createGain();
+	pinkGain.gain.value = 0;
+	pinkNoise.connect(pinkGain);
+	pinkGain.connect(audioContext.destination);
+	pinkGain.gain.value = 0; 
+}
 
 // Add the event listener for the vent pressure button.
 if (mobile === false) {
@@ -203,17 +224,7 @@ if (mobile === true) {
       clearTimeout(timeout);
     }, 3000, makeOverlayAppearTimeout);
   });
-} else {
-  document.getElementById("screenOverlay").addEventListener("mousedown", function (e) {
-    if (playerType == "Twitch") {
-      e.target.style.zIndex = "0";
-      var makeOverlayAppearTimeout = setTimeout(function (timeout) {
-        e.target.style.zIndex = "4";
-        clearTimeout(timeout);
-      }, 3000, makeOverlayAppearTimeout);
-    }
-  });
-} 
+}
 
 // Set all of the intervals for the game functions that need to run every frame (~1/30 second)
 setInterval(videoQualityCheck, 33);
@@ -239,8 +250,10 @@ function videoQualityCheck() {
     }
   } else if (playerReady === false) {
     document.getElementById("turnCrankToPlayText").innerHTML = "LOADING...";
+    document.getElementById("loadingCursorContainer").style.opacity = 1;
   } else {
     document.getElementById("turnCrankToPlayText").innerHTML = "TURN THE VIDEO CRANK TO UNPAUSE VIDEO"; 
+    document.getElementById("loadingCursorContainer").style.opacity = 0;
     
     // Do the following if the user has rotated the video crank.
     if (rotation != lastRotationVideo && !isNaN(rotation) && videoQualityControl.dataset.active == "true") {
@@ -249,7 +262,10 @@ function videoQualityCheck() {
         document.getElementById("turnCrankToPlay").style.zIndex = "0";
         document.getElementById("noise").style.zIndex = "0";
         document.getElementById("player").style.zIndex = "1";
-      } 
+      }
+      if (playerType == "Twitch") {
+        document.getElementById("screenOverlay").style.zIndex = "0";
+      }
       document.getElementById("turnCrankToPlay").style.opacity = 0;
 
       // Start the video playing
@@ -381,7 +397,9 @@ function videoQualityCheck() {
     document.getElementById("bestTimeText").innerHTML = peakQualityTime[0];
 
     if (peakQualityTime[1] > bestTime) {
-      localStorage.setItem("bestTime", peakQualityTime[1]);
+      if (!((platform.os.family == "Windows XP") && (platform.version > 35 && platform.name == "Firefox"))) {
+         localStorage.setItem("bestTime", peakQualityTime[1]);
+      }
       bestTime = peakQualityTime[1];
       document.getElementById("bestTimeRecord").innerHTML = peakQualityTime[0];
     }
@@ -483,11 +501,16 @@ function audioQualityCheck() {
   
   // Start the audio noise playing if the user has started playing.
   if (playing === true) {
-    document.getElementById("audioNoise").play();
-  } 
-  
-  // Get the audio noise and set it's volume accordingly.
-  document.getElementById("audioNoise").volume = clamp((1 - (rotation + audioQuality) / 1300) * volume, 0, 1) / 4;
+    // Get the audio noise and set it's volume accordingly.
+	if (platform.os.family == "Windows XP") {
+		audioNoise.play();
+		audioNoise.volume = (clamp((1 - (rotation + audioQuality) / 1300) * volume, 0, 1) / 4);
+	} else {
+		pinkGain.gain.value = (clamp((1 - (rotation + audioQuality) / 1300) * volume, 0, 1) / 4);
+	}
+  } else {
+    pinkGain.gain.value = 0;
+  }
 } 
 
 // Get an element and return it's rotation from 0 - 360 degrees.
@@ -528,7 +551,7 @@ function pressureBuildup() {
     }
   } else if (playing === true) {
     // Otherwise, keep increasing it.
-    pressure += 0.30 * (difficulty / 6);
+    pressure += 0.25 * (difficulty / 6);
   }
 
   if (pressure > 230) {
@@ -585,15 +608,18 @@ function getRotationPoint(rh, ry, angle) {
 }
 
 function setDifficulty(changed) {
-  if (changed == "true") {
-    difficulty = document.getElementById("difficultySlider").value;
-    localStorage.setItem("difficulty", difficulty);
-  } else {
-    difficulty = parseFloat(localStorage.getItem("difficulty"));
-
-    if (isNaN(difficulty)) {
-      difficulty = 6;
-    }
+   if (changed == "true") {
+      difficulty = document.getElementById("difficultySlider").value;
+      if (!((platform.os.family == "Windows XP") && (platform.version > 35 && platform.name == "Firefox"))) {
+         localStorage.setItem("difficulty", difficulty);
+      }
+   } else {
+      if (!((platform.os.family == "Windows XP") && (platform.version > 35 && platform.name == "Firefox"))) {
+         difficulty = parseFloat(localStorage.getItem("difficulty"));
+      }
+      if (isNaN(difficulty)) {
+         difficulty = 6;
+      }
 
     document.getElementById("difficultySlider").value = difficulty;
   }
@@ -603,11 +629,14 @@ function setDifficulty(changed) {
 
 function setVolume(changed) {
   if (changed == "true") {
-    volume = document.getElementById("volumeSlider").value / 100;
-    localStorage.setItem("volume", volume);
-  } else {
-    volume = parseFloat(localStorage.getItem("volume"));
-
+      volume = document.getElementById("volumeSlider").value / 100;
+      if (!((platform.os.family == "Windows XP") && (platform.version > 35 && platform.name == "Firefox"))) {
+         localStorage.setItem("volume", volume);
+      }
+   } else {
+      if (!((platform.os.family == "Windows XP") && (platform.version > 35 && platform.name == "Firefox"))) {
+         volume = parseFloat(localStorage.getItem("volume"));
+      }
     if (isNaN(volume)) {
       volume = 1;
     }
@@ -616,7 +645,7 @@ function setVolume(changed) {
   document.getElementById("volumeSlider").value = volume * 100;
   document.getElementById("recordSound").volume = volume;
   document.getElementById("tickingSound").volume = volume;
-  document.getElementById("ventingSound").volume = volume;
+  document.getElementById("ventingSound").volume = volume / 2;
   document.getElementById("warningSound").volume = volume / 2;
   document.getElementById("volumeLevel").innerHTML = "Please choose your volume level.<br>Current volume level is " + Math.round(volume * 100) + "%.";
 } 
@@ -634,13 +663,19 @@ function load() {
   var loadButtonAnimationTimeout = setTimeout(animateLoadButton, 200, loadButtonAnimationTimeout);
   var videoUrl = document.getElementById("videoUrl").value;
 
+  if (player) {
+    player.destroy();
+  }
   if (videoUrl.indexOf("twitch") != -1) {
     if (location.protocol != "file:") {
       playerType = "Twitch";
-      player.destroy();
-      var channelName = videoUrl.replace(/https\:\/\/|www.|twitch.tv\//g, "");
+      var channelName = videoUrl.replace(/https\:\/\/|m\.|www\.|twitch\.tv\//g, "");
       var remove_after = channelName.indexOf("&");
+      if (remove_after != -1) {
+        channelName = channelName.substring(0, remove_after);
+      }
 
+      remove_after = channelName.indexOf("?");
       if (remove_after != -1) {
         channelName = channelName.substring(0, remove_after);
       }
@@ -655,21 +690,23 @@ function load() {
         player.pause();
         playerReady = true;
       });
-      playerReady = false;
     } else {
       alert("Because the Twitch Embed API is dumb, Twitch streams can not be embbeded if you're running Steam-Powered YouTube locally.\nPlease try playing this game off of a local server, or off of my site at www.bahjeez.com/logan/steamtube/steamtube.html");
       return;
     }
   } else if (videoUrl.indexOf("youtu") != -1) {
-    player.destroy();
     playerType = "YouTube"; 
 
     // Stupid YouTube API won't accept normal YouTube URLs for loadVideoByUrl, so I have to do this instead.
-    var videoid = videoUrl.replace(/https\:\/\/|www.youtube.com\/watch\?v=|youtu.be\//g, ""); 
+    var videoid = videoUrl.replace(/https\:\/\/|www\.youtube\.com\/watch\?v=|youtu\.be\//g, ""); 
     
     // Thanks Leo and Samina Zahid of Stack Overflow!
     var remove_after = videoid.indexOf("&");
+    if (remove_after != -1) {
+      videoid = videoid.substring(0, remove_after);
+    } 
 
+    remove_after = videoid.indexOf("?");
     if (remove_after != -1) {
       videoid = videoid.substring(0, remove_after);
     } 
@@ -685,16 +722,17 @@ function load() {
         autoplay: 0
       },
       events: {
-        onReady: onYTPlayerReady,
-        onStateChange: onYTPlayerStateChange
+        onReady: onYTPlayerReady
       }
     });
-    playerReady = false;
   } else {
-    player.destroy();
-    player = new videoPlayer("player", videoUrl);
+    player = new videoPlayer("player", {
+      height: "100%",
+      width: "100%",
+      controls: false,
+      url: videoUrl
+    });
     playerType = "Video";
-    playerReady = true;
   } 
   
   // Reset the "Turn video crank to unpause" screen
@@ -708,8 +746,11 @@ function load() {
   audioQuality = -audioQualityControlRotation;
   pressure = 0;
   playing = false;
+  playerReady = false;
+  if (platform.os.family == "Windows XP") {
+    audioNoise.pause();
+  }
   document.getElementById("recordSound").pause();
-  document.getElementById("audioNoise").pause();
   document.getElementById("screenOverlay").style.zIndex = "4";
   document.getElementById("turnCrankToPlay").style.zIndex = "3";
   document.getElementById("noise").style.zIndex = "2";

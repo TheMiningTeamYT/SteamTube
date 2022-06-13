@@ -91,7 +91,8 @@
       '5.01': '2000 SP1',
       '5.0':  '2000',
       '4.0':  'NT',
-      '4.90': 'ME'
+      '4.90': 'ME',
+      '4.10': '98'
     };
     // Detect Windows version from platform tokens.
     if (pattern && label && /^Win/i.test(os) && !/^Windows Phone /i.test(os) &&

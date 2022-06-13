@@ -25,12 +25,17 @@ The Desmos Graphing Calculator.
     <title>Steam-Powered YouTube</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="icon" type="image/png" href="../favicon.png"/>
+    <!-- Thank you https://www.filamentgroup.com/lab/load-css-simpler/ !-->
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300&display=swap" rel="stylesheet" media="print" onload="this.media='all'"> 
     <!-- These are here for social media to grab the title and thumbnail. -->
     <meta property="og:title" content="Steam-Powered YouTube">
     <meta property="og:url" content="https://www.bahjeez.com/logan/steamtube/steamtube.html">
     <meta property="og:image" content="https://www.bahjeez.com/logan/steamtube/assets/Steam Powered Youtube.jpg">
   </head>
-  <body>
+  <body style="display: none;">
+    <div id="topbar">
+      <a href="../home.html">Go Back Home.</a>
+    </div>
     <div style="flex-direction: column; width: 100%; align-items: center">
       <img src="assets/header.jpg" style="width: 900px; height: 96px" />
       <p style="margin: 2px 2px 2px 20px; font-family: 'Union Agrochem'; font-size: 20px; color: white;">
@@ -49,16 +54,16 @@ The Desmos Graphing Calculator.
         </p>
       </div>
     </noscript>
-    <div style="display: flex; width: 100%; user-select: none;">
+    <div style="display: flex; width: 100%; user-select: none; overflow: hidden;">
       <div class="mainContainer">
         <div>
           <input type="text" id="videoUrl" />
           <img id="loadButton" src="assets/littleButton.png" />
         </div>
         <div class="videoContainer">
-          <img id="screenOverlay" src="assets/screen-overlay.png" style="opacity: 0.8; z-index: 4; width: 422px; height: 232px; left: -214px; top: -113px; position: absolute;"/>
+          <img id="screenOverlay" src="assets/screen-overlay.png" style="opacity: 0.8; z-index: 4; width: 422px; height: 230px; left: -216px; top: -114px; position: absolute;"/>
           <div id="turnCrankToPlay" class="video">
-            <p id="turnCrankToPlayText">LOADING...</p>
+            <p id="turnCrankToPlayText">LOADING...<div id="loadingCursorContainer"><div id="loadingCursor"></div></div></p>
           </div>
           <img src="assets/noise.gif" class="video" id="noise" />
           <div id="player" class="video"></div>
@@ -157,20 +162,22 @@ The Desmos Graphing Calculator.
         Thank you so much developers of platform.js!
       </p>
     </div>
-    <audio id="audioNoise" src="assets/noise.mp3" preload="auto" loop="true"></audio>
     <audio id="recordSound" src="assets/HissSound.mp3" preload="auto" loop="true"></audio>
     <audio id="ventingSound" src="assets/SteamSound.mp3" preload="auto"></audio>
     <audio id="tickingSound" src="assets/TickSound.mp3" preload="auto" loop="true"></audio>
     <audio id="warningSound" src="assets/warning.mp3" preload="auto"></audio>
     <!-- Credit to the platform.js team!-->
     <script src="platform.js"></script>
+    <!-- Thank you Zach Denton of https://noisehack.com/generate-noise-web-audio-api/ !-->
+    <script src="noise.js"></script>
     <script src="main.js"></script>
     <!-- Thanks J. Voigt of https://bl.ocks.org/joyrexus/7207044 ! -->
     <script src="rotate.js"></script>
-    <script src= "https://player.twitch.tv/js/embed/v1.js"></script>
+    <script defer src="https://player.twitch.tv/js/embed/v1.js"></script>
     <script>
       var tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
+      tag.defer = true;
       var firstScriptTag = document.getElementsByTagName("script")[0];
       firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
       function onYouTubeIframeAPIReady() {
@@ -186,7 +193,6 @@ The Desmos Graphing Calculator.
             },
             events: {
               onReady: onYTPlayerReady,
-              onStateChange: onYTPlayerStateChange,
             },
           });
         } else {
@@ -200,19 +206,13 @@ The Desmos Graphing Calculator.
               autoplay: 0,
             },
             events: {
-              onReady: onYTPlayerReady,
-              onStateChange: onYTPlayerStateChange,
+              onReady: onYTPlayerReady
             },
           });
         }
       }
       function onYTPlayerReady() {
         playerReady = true;
-      }
-      function onYTPlayerStateChange(event) {
-        if (event.data == 5) {
-          playerReady = true;
-        }
       }
     </script>
   </body>

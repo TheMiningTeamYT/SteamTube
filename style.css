@@ -22,15 +22,28 @@ Most of the crazy margins here are remants of when I was using margins to positi
 It's easier to just fix things when they break then to fix everything right now.
 I'm making a web toy, not critical infrastructure, ok?
 */
-@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap');
 @font-face {
   /* Thank you Hannes Siengalewicz of the defunct site http://www.jestyle.net/ for this font! (Their site is preserved at https://web.archive.org/web/20200711014546/http://www.jestyle.net/ ) You can see their other works at https://www.dafont.com/polenimschaufenster.d722 ! */
   font-family: "Union Agrochem";
   src: url("assets/unionagrochem.ttf");
 }
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+  
+  100% {
+    opacity: 1;
+  }
+}
 body {
   background-color: black;
   margin: 0;
+  display: block!important;
 }
 div {
   display: flex;
@@ -54,6 +67,7 @@ input {
   /* For Fireox 35 */
   -moz-user-select: none;
   -webkit-user-select: none;
+  user-select: none;
 }
 .qualityControl {
 	display: flex;
@@ -143,6 +157,7 @@ input {
   z-index: 1;
   position: absolute;
   overflow: hidden;
+  background-color: black;
 }
 #pressureDial {
   position: relative;
@@ -193,6 +208,19 @@ input {
   z-index: 3; 
   align-items: center; 
 }
+#loadingCursor {
+  animation: blink 1.5s ease-out infinite;
+  width: 15px;
+  height: 35px;
+  background-color: white;
+  margin: 2px;
+  position: relative;
+  top: 2px;
+}
+#loadingCursorContainer {
+  margin: 0px;
+}
+
 .dial div {
   width: 100%;
   height: 10px;
@@ -234,7 +262,4 @@ input {
   font-size: 24px; 
   font-family: 'Union Agrochem';
 }
-#mobileCheckbox {
-  width: 15px;
-  height: 15px;
-}
+/* Thank you PWNFunction! hehe https://therickroll.com */
