@@ -107,6 +107,11 @@ var videoPlayer = /*#__PURE__*/function () {
     value: function destroy() {
       this.videoElement.remove();
     }
+  }, {
+    key: "setLoop",
+    value: function setLoop(loop) {
+      this.videoElement.loop = loop;
+    }
   }]);
 
   return videoPlayer;
@@ -126,6 +131,9 @@ var peakQuality = false;
 var playerReady = false;
 var playerType = "YouTube";
 var mobile = false;
+var audioContext;
+var pinkNoise;
+var pinkGain;
 // Define global var difficulty first so that it can be used by setDifficulty
 var difficulty = 6;  
 // Define global var volume first so that it can be used by setVolume
@@ -178,20 +186,6 @@ var videoQualityControl = document.getElementById("videoQualityControl");
 var audioQualityControl = document.getElementById("audioQualityControl");
 var pressureVentButton = document.getElementById("pressureVent");
 var peakQualityTimer = ""; 
-
-// Make sure you don't make the player's ear's bleed.
-// Thank you Zach Denton of https://noisehack.com/generate-noise-web-audio-api/ !
-if (platform.os.family == "Windows XP") {
-	audioNoise.volume = 0.25;
-} else {
-	var audioContext = new (window.webkitAudioContext || window.AudioContext)();
-	var pinkNoise = audioContext.createPinkNoise();
-	var pinkGain = audioContext.createGain();
-	pinkGain.gain.value = 0;
-	pinkNoise.connect(pinkGain);
-	pinkGain.connect(audioContext.destination);
-	pinkGain.gain.value = 0; 
-}
 
 // Add the event listener for the vent pressure button.
 if (mobile === false) {
@@ -282,6 +276,20 @@ function videoQualityCheck() {
       
       // Finaly, make it so that the TV static on the screen can't be seen.
       document.getElementById("noise").style.opacity = 0;
+
+      // Make sure you don't make the player's ear's bleed.
+      // Thank you Zach Denton of https://noisehack.com/generate-noise-web-audio-api/ !
+      if (platform.os.family == "Windows XP") {
+        audioNoise.volume = 0.25;
+      } else {
+        audioContext = new (window.webkitAudioContext || window.AudioContext)();
+        pinkNoise = audioContext.createPinkNoise();
+        pinkGain = audioContext.createGain();
+        pinkGain.gain.value = 0;
+        pinkNoise.connect(pinkGain);
+        pinkGain.connect(audioContext.destination);
+        pinkGain.gain.value = 0; 
+      }
     }
   } 
   
@@ -629,14 +637,14 @@ function setDifficulty(changed) {
 
 function setVolume(changed) {
   if (changed == "true") {
-      volume = document.getElementById("volumeSlider").value / 100;
-      if (!((platform.os.family == "Windows XP") && (platform.version > 35 && platform.name == "Firefox"))) {
-         localStorage.setItem("volume", volume);
-      }
-   } else {
-      if (!((platform.os.family == "Windows XP") && (platform.version > 35 && platform.name == "Firefox"))) {
-         volume = parseFloat(localStorage.getItem("volume"));
-      }
+    volume = document.getElementById("volumeSlider").value / 100;
+    if (!((platform.os.family == "Windows XP") && (platform.version > 35 && platform.name == "Firefox"))) {
+        localStorage.setItem("volume", volume);
+    }
+  } else {
+    if (!((platform.os.family == "Windows XP") && (platform.version > 35 && platform.name == "Firefox"))) {
+        volume = parseFloat(localStorage.getItem("volume"));
+    }
     if (isNaN(volume)) {
       volume = 1;
     }
@@ -649,6 +657,29 @@ function setVolume(changed) {
   document.getElementById("warningSound").volume = volume / 2;
   document.getElementById("volumeLevel").innerHTML = "Please choose your volume level.<br>Current volume level is " + Math.round(volume * 100) + "%.";
 } 
+
+function setLoop(changed) {
+  // come back and add persistence to this later.
+  if (playerType !== "Twitch") {
+    if (changed === "true") {
+      player.setLoop(document.getElementById("loopCheckbox").checked);
+      if (!((platform.os.family == "Windows XP") && (platform.version > 35 && platform.name == "Firefox"))) {
+        localStorage.setItem("loop", document.getElementById("loopCheckbox").checked);
+      }
+    } else {
+      if (!((platform.os.family == "Windows XP") && (platform.version > 35 && platform.name == "Firefox"))) {
+        var value = localStorage.getItem("loop");
+        if (value === "true") {
+          value = true;
+        } else {
+          value = false;
+        }
+        player.setLoop(value);
+        document.getElementById("loopCheckbox").checked = value;
+      }
+    }
+  }
+}
 
 // Thank you Tom Esterez of Stack Overflow!
 function formatTime(seconds) {
@@ -718,8 +749,10 @@ function load() {
       videoId: videoid,
       playerVars: {
         playsinline: 1,
-        controls: 0,
-        autoplay: 0
+        controls: mobile,
+        autoplay: 0,
+        loop: 0,
+        playlist: "Zux_GebV374",
       },
       events: {
         onReady: onYTPlayerReady
@@ -756,3 +789,6 @@ function load() {
   document.getElementById("noise").style.zIndex = "2";
   document.getElementById("player").style.zIndex = "1";
 }
+document.getElementById("screenOverlay").addEventListener("mouseover", e => e.stopPropagation());
+document.getElementById("screenOverlay").addEventListener("mouseenter", e => e.stopPropagation());
+document.getElementById("screenOverlay").addEventListener("mouseleave", e => e.stopPropagation());
