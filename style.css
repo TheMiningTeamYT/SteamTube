@@ -82,14 +82,6 @@ input {
   z-index: 1;
   filter: drop-shadow(0px 20px 3px rgba(0,0,0,0.7))
 }
-.videoContainer {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	position: relative;
-	top: 168px;
-	left: 5px;
-}
 .video {
   width: 405px;
   height: 225px;
@@ -261,5 +253,13 @@ input {
 #statusLights div div p {
   font-size: 24px; 
   font-family: 'Union Agrochem';
+}
+#videoContainer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	top: 168px;
+	left: 5px;
 }
 /* Thank you PWNFunction! hehe https://therickroll.com */
