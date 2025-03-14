@@ -61,7 +61,7 @@ The Desmos Graphing Calculator.
     <div style="display: flex; width: 100%; user-select: none; overflow: hidden;">
       <div class="mainContainer">
         <div>
-          <input type="text" placeholder="Enter URL of video to load here. YouTube, Twitch, and video files are supported." id="videoUrl" />
+          <input type="text" placeholder="Enter URL of video to load here. Supports YouTube, Twitch, and video files." id="videoUrl" />
           <img id="loadButton" draggable="false" src="assets/littleButton.png" />
         </div>
         <div id="videoContainer">
@@ -224,9 +224,11 @@ The Desmos Graphing Calculator.
             },
           });
         }
+        playerElement = document.getElementById("player");
       }
       function onYTPlayerReady() {
         playerReady = true;
+        player.setVolume(0);
         setLoop(false);
       }
     </script>

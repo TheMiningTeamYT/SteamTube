@@ -1,3 +1,21 @@
+/*
+Written By:
+Logan C.
+
+Inspired By / Replicating:
+https://www.wonder-tonic.com/steamtube/
+
+With help from:
+Logan C.'s Dad
+The good people of Stack Overflow.
+w3schools.com
+The Caret text editor
+Microsoft Visual Studio Code
+Pop-Tarts.
+Mio-Water.
+The JPEXS Flash .swf decomplier.
+Notepad.
+The Desmos Graphing Calculator. */
 // Thank you Tom Esterez of Stack Overflow!
 function formatTime(seconds) {
     var h = Math.floor(seconds / 3600);
@@ -9,13 +27,18 @@ function formatTime(seconds) {
 // Create the timer object I'm going to use to keep track of time elapsed.
 function Timer() {
     this.startDate = new Date();
+    this.lastSeconds = 0;
+    this.timeStr = "0:00";
 }
 
 Timer.prototype.timeElapsed = function() {
     // Thank you JellicleCat of Stack Overflow!
     var seconds = Math.round((new Date() - this.startDate) / 1000);
-    var timeStr = formatTime(seconds);
-    return [timeStr, seconds];
+    if (seconds !== this.lastSeconds) {
+        this.timeStr = formatTime(seconds);
+        this.lastSeconds = seconds;
+    }
+    return [this.timeStr, seconds];
 }
 
 // The videoPlayer class is to provide a more convenient way to interact with the HTML <video> element 
@@ -32,11 +55,12 @@ function VideoPlayer(parent, options) {
     this.videoElement.controls = options.controls;
     var videoElement = this.videoElement;
     this.videoElement.addEventListener("ended", function() {
-        videoElement.src = "";
+        this.src = "";
     });
     this.videoElement.addEventListener("loadeddata", function() {
+        this.volume = 0;
         playerReady = true;
-    })
+    });
     parent.appendChild(this.videoElement);
 }
 
@@ -54,6 +78,10 @@ VideoPlayer.prototype.pause = function() {
 
 VideoPlayer.prototype.setVolume = function(volume) {
     this.videoElement.volume = volume;
+}
+
+VideoPlayer.prototype.getVolume = function() {
+    return this.videoElement.volume;
 }
 
 VideoPlayer.prototype.destroy = function() {
@@ -80,6 +108,18 @@ var videoNoise = document.getElementById("noise");
 var crankText = document.getElementById("turnCrankToPlayText");
 var crankTextContainer = document.getElementById("turnCrankToPlay");
 var loadingCursor = document.getElementById("loadingCursorContainer");
+var peakTimeText = document.getElementById("peakTimeText");
+var bestTimeText = document.getElementById("bestTime");
+var bestTimeDiv = document.getElementById("bestTimeDiv");
+var peakTimeDiv = document.getElementById("peakTimeDiv");
+var peakQualityLight = document.getElementById("peakQualityLight");
+var overheatLight = document.getElementById("overheatLight");
+var playerElement = document.getElementById("player");
+
+// Absolute ocations of a few assets
+var noOverheat = new URL("assets/noOverheat.png", window.location.href).href;
+var overheat = new URL("assets/overheat.png", window.location.href).href;
+
 var legacyAudio = false;
 var audioContext;
 var pinkNoise;
@@ -100,7 +140,8 @@ var peakQuality = false;
 var playerReady = false;
 var playerType = "YouTube";
 var mobile = false;
-var bestTime = parseFloat(localStorage.getItem("bestTime"));
+var bestTime = 0;
+if (localStorage) bestTime = parseFloat(localStorage.getItem("bestTime"))
 // Define global var difficulty first so that it can be used by setDifficulty
 var difficulty = 6;  
 // Define global var volume first so that it can be used by setVolume
@@ -109,6 +150,8 @@ var volume = 1;
 var debounce = performance.now();
 var lastPressureFrame = performance.now();
 var nextPressureFrame = 0;
+// Here to reduce changes to the player & DOM for performance.
+var lastVolume = 0;
 
 function videoQualityCheck(obj, time) {
     if (playing) {
@@ -139,7 +182,6 @@ function videoQualityCheck(obj, time) {
                 audioNoise.volume = 0.25;
             } else {
                 pinkGain.gain.value = 0.25;
-                audioContext.resume();
             }
             playing = true;
         }
@@ -164,7 +206,11 @@ function videoQualityCheck(obj, time) {
             }
         }
         obj.rotation += obj.angularVelocity*time;
-        obj.angularVelocity /= 1.3;
+        if (Math.abs(obj.angularVelocity) > 0.000005) {
+            obj.angularVelocity *= Math.pow(1.0035, -time);
+        } else {
+            obj.angularVelocity = 0;
+        }
     }
 
     var decrease = (playing) ? (difficulty/1.5)*time*(2-videoQuality*1.5)/40000 : (difficulty/1.5)*time*(2-videoQuality*1.5)/160000
@@ -182,11 +228,15 @@ function videoQualityCheck(obj, time) {
 
     // Set the opacity of the video noise according to the video quality.
     if (1 - videoQuality/vQualThres < 0.05) {
-        document.getElementById("player").style.filter = "blur(0px) brightness(1)";
-        videoNoise.style.opacity = 0;
+        if (playerElement.style.filter !== "blur(0px) brightness(1)")
+            playerElement.style.filter = "blur(0px) brightness(1)";
+        if (videoNoise.style.display !== "none") 
+            videoNoise.style.display = "none";
     } else {
-        document.getElementById("player").style.filter = "blur(" + ((1 - videoQuality/vQualThres) * 10) + "px) brightness(" + (0.5 + videoQuality/1.67) + ")";
-        videoNoise.style.opacity = (1 - videoQuality)/2;
+        playerElement.style.filter = "blur(" + ((1 - videoQuality/vQualThres) * 10) + "px) brightness(" + (0.5 + videoQuality*0.5/vQualThres) + ")";
+        if (videoNoise.style.display !== "") 
+            videoNoise.style.display = "";
+        videoNoise.style.opacity = 1 - videoQuality/vQualThres;
     }
 
     // Move the dial according to the video quality.
@@ -232,11 +282,15 @@ function audioQualityCheck(obj, time) {
     audioQualityDial.style.transform = "rotate(" + (260*audioQuality - 125) + "deg)";
 
     if (playing) {
-        // Get the volume of the video player.
+        // Set the volume of the video player.
+        var newVol = audioQuality*volume/aQualThres;
         if (playerType === "YouTube") {
-            player.setVolume(audioQuality*volume*100/aQualThres);
-        } else {
-            player.setVolume(audioQuality*volume/aQualThres);
+            newVol = Math.round(newVol*100);
+        }
+        if (lastVolume !== newVol) {
+            if (player.getVolume() !== newVol) 
+                player.setVolume(newVol);
+            lastVolume = newVol;
         }
 
         // Get the audio noise and set its volume accordingly.
@@ -270,16 +324,6 @@ function audioQualityCheck(obj, time) {
     }
 }
 
-function ventPressed() {
-    pressureVenting = true;
-    ventingSound.currentTime = 5 - pressure*5;
-    document.getElementById("pressureVent").src = "assets/bigButtonPressed.png";
-}
-
-function ventReleased() {
-    document.getElementById("pressureVent").src = "assets/bigButton.png"
-}
-
 function pressureTask(now) {
     // Only run at 30 FPS.
     if (now >= nextPressureFrame) {
@@ -295,8 +339,8 @@ function pressureTask(now) {
                 if (ventingSound.paused) {
                     ventingSound.play();
                 }
-                if (ventingDueToOverheat) {
-                    document.getElementById("overheatLight").src = "assets/overheat.png";
+                if (ventingDueToOverheat && overheatLight.src != overheat) {
+                    overheatLight.src = overheat;
                 }
             } else {
                 pressure = 0;
@@ -306,7 +350,8 @@ function pressureTask(now) {
                     ventingSound.pause();
                     ventingSound.currentTime = 0;
                 }
-                document.getElementById("overheatLight").src = "assets/noOverheat.png";
+                if (overheatLight.src !== noOverheat)
+                    overheatLight.src = noOverheat;
             }
         } else if (playing) {
             // Otherwise, keep increasing the pressure.
@@ -327,15 +372,16 @@ function pressureTask(now) {
                 overheating = false;
                 warningSound.pause();
                 warningSound.currentTime = 0;
-                if (!ventingDueToOverheat) {
-                    document.getElementById("overheatLight").src = "assets/noOverheat.png";
+                if (!ventingDueToOverheat && overheatLight.src !== noOverheat) {
+                    overheatLight.src = noOverheat;
                 }
             }
         } else {
             if (pressure >= 0.908695652) {
                 overheating = true;
                 warningSound.play();
-                document.getElementById("overheatLight").src = "assets/overheat.png";
+                if (overheatLight.src !== overheat)
+                    overheatLight.src = "assets/overheat.png";
             }
         }
 
@@ -353,71 +399,82 @@ function pressureTask(now) {
 
 // Handles various background tasks, like the ticking sound,
 // and the quality lights
-function backgroundTask(now) {
+function backgroundTask() {
+    var now = performance.now();
     if (playing) {
         // Make sure the record scratch-esque sound is playing.
         if (recordSound.paused) {
             recordSound.play(); 
+        }
+        // Make sure the audio noise is playing.
+        if (audioContext.state === "suspended") {
+            audioContext.resume();
         }
         // Check if we're at peak quality.
         if (!peakQuality && videoQuality >= vQualThres && audioQuality >= aQualThres) {
             peakQuality = true;
             // Keep track of how long we've been at peak quality for.
             peakQualityTimer = new Timer();
-            document.getElementById("peakQualityLight").src = "assets/peakQuality.png";
-            document.getElementById("peakTimeDiv").style.backgroundImage = "url('assets/bestTime.png')";
+            peakQualityLight.src = "assets/peakQuality.png";
+            peakTimeDiv.style.backgroundImage = "url(\"assets/bestTime.png\")";
         } else if (peakQuality && (videoQuality < vQualThres || audioQuality < aQualThres)) {
             peakQuality = false;
-            document.getElementById("peakQualityLight").src = "assets/notPeakQuality.png";
-            document.getElementById("peakTimeDiv").style.backgroundImage = "url('assets/notBestTime.png')";
-            document.getElementById("bestTimeDiv").style.backgroundImage = "url('assets/bestTimeRecord.png')";
-            document.getElementById("peakTimeText").innerHTML = "0:00";
+            peakQualityLight.src = "assets/notPeakQuality.png";
+            peakTimeDiv.style.backgroundImage = "url(\"assets/notBestTime.png\")";
+            bestTimeDiv.style.backgroundImage = "url(\"assets/bestTimeRecord.png\")";
+            peakTimeText.innerHTML = "0:00";
         } else if (peakQuality) {
             var peakQualityTime = peakQualityTimer.timeElapsed();
-            document.getElementById("peakTimeText").innerHTML = peakQualityTime[0];
+            if (peakTimeText.innerHTML !== peakQualityTime[0]) 
+                peakTimeText.innerHTML = peakQualityTime[0];
             if (peakQualityTime[1] >= bestTime && !cheater) {
-                localStorage.setItem("bestTime", peakQualityTime[1]);
+                if (localStorage) 
+                    localStorage.setItem("bestTime", peakQualityTime[1]);
                 bestTime = peakQualityTime[1];
-                document.getElementById("bestTime").innerHTML = peakQualityTime[0];
-                document.getElementById("bestTimeDiv").style.backgroundImage = "url('assets/bestTime.png')";
+                if (bestTimeText.innerHTML !== peakQualityTime[0]) 
+                    bestTimeText.innerHTML = peakQualityTime[0];
+                if (bestTimeDiv.style.backgroundImage !== "url(\"assets/bestTime.png\")") 
+                    bestTimeDiv.style.backgroundImage = "url(\"assets/bestTime.png\")";
             } else {
-                document.getElementById("bestTimeDiv").style.backgroundImage = "url('assets/bestTimeRecord.png')";
+                if (bestTimeDiv.style.backgroundImage !== "url(\"assets/bestTimeRecord.png\")") 
+                    bestTimeDiv.style.backgroundImage = "url(\"assets/bestTimeRecord.png\")";
             }
         }
         // If the user is on mobile, make it so that everything infront of the YouTube player is hidden.
         if (mobile || playerType == "Twitch") {
             crankTextContainer.style.zIndex = "0";
-            videoNoise.style.zIndex = "0";
-            document.getElementById("player").style.zIndex = "1";
-        }
-        if (playerType == "Twitch") {
-            document.getElementById("screenOverlay").style.zIndex = "0";
         }
     } else {
         if (now > debounce) {
-            crankTextContainer.style.opacity = 1;
-            crankTextContainer.style.zIndex = "4";
-            videoNoise.style.zIndex = "1";
+            if (crankTextContainer.style.opacity !== "1") 
+                crankTextContainer.style.opacity = "1";
+            if (crankTextContainer.style.zIndex !== "4") 
+                crankTextContainer.style.zIndex = "4";
+            if (videoNoise.style.zIndex !== "2") 
+                videoNoise.style.zIndex = "2";
             if (playerReady) {
-                crankText.innerHTML = "TURN THE VIDEO CRANK TO UNPAUSE VIDEO"; 
-                loadingCursor.style.opacity = 0;
-            } else {
-                crankText.innerHTML = "LOADING...";
-                loadingCursor.style.opacity = 1;
+                if (crankText.innerHTML !== "TURN THE VIDEO CRANK TO UNPAUSE VIDEO") 
+                    crankText.innerHTML = "TURN THE VIDEO CRANK TO UNPAUSE VIDEO";
+                if (loadingCursor.style.display !== "none") 
+                    loadingCursor.style.display = "none";
             }
         }
         if (!recordSound.paused) {
             recordSound.pause(); 
         }
+        if (audioContext.state === "running") {
+            audioContext.suspend();
+        }
         peakQuality = false;
-        document.getElementById("peakQualityLight").src = "assets/notPeakQuality.png";
-        document.getElementById("peakTimeDiv").style.backgroundImage = "url('assets/notBestTime.png')";
-        document.getElementById("bestTimeDiv").style.backgroundImage = "url('assets/bestTimeRecord.png')";
-        document.getElementById("peakTimeText").innerHTML = "0:00";
+        if (peakTimeText.innerHTML !== "0:00")
+            peakTimeText.innerHTML = "0:00";
     }
-    if (videoQualityControl.active || audioQualityControl.active) {
-        tickingSound.play();
-    } else {
+    if ((videoQualityControl.active && videoQualityControl.rotation != videoQualityControl.lastRotation) || (audioQualityControl.active && audioQualityControl.rotation != audioQualityControl.lastRotation) ||
+        (Math.abs(videoQualityControl.angularVelocity) > 0.001) || (Math.abs(audioQualityControl.angularVelocity) > 0.001)) {
+        if (tickingSound.paused) {
+            tickingSound.play();
+        }
+    } else if (!tickingSound.paused) {
         tickingSound.pause();
     }
     // hehe
@@ -425,20 +482,34 @@ function backgroundTask(now) {
         // Keeps track of your shame.
         cheater = true;
         alert("How dare you, you filty cheater!");
-        localStorage.setItem("bestTime", 0);
-        document.getElementById("bestTime").innerHTML = "0:00";
+        if (localStorage) localStorage.setItem("bestTime", 0);
+        bestTimeText.innerHTML = "0:00";
         bestTime = 0;
 
     }
-    requestAnimationFrame(backgroundTask);
+    if (typeof(requestIdleCallback) !== "undefined") {
+        requestIdleCallback(backgroundTask, {timeout: 100});
+    }
+}
+
+function ventPressed(e) {
+    e.preventDefault();
+    pressureVenting = true;
+    ventingSound.currentTime = 5 - pressure*5;
+    document.getElementById("pressureVent").src = "assets/bigButtonPressed.png";
+}
+
+function ventReleased(e) {
+    e.preventDefault();
+    document.getElementById("pressureVent").src = "assets/bigButton.png"
 }
 
 function setDifficulty(changed) {
     if (changed) {
         difficulty = document.getElementById("difficultySlider").value;
-        localStorage.setItem("difficulty", difficulty);
+        if (localStorage) localStorage.setItem("difficulty", difficulty);
     } else {
-        difficulty = parseFloat(localStorage.getItem("difficulty"));
+        if (localStorage) difficulty = parseFloat(localStorage.getItem("difficulty"));
         if (isNaN(difficulty)) {
             difficulty = 6;
         }
@@ -452,18 +523,18 @@ function setDifficulty(changed) {
 function setVolume(changed) {
     if (changed) {
         volume = document.getElementById("volumeSlider").value / 100;
-        localStorage.setItem("volume", volume);
+        if (localStorage) localStorage.setItem("volume", volume);
     } else {
-        volume = parseFloat(localStorage.getItem("volume"));
+        if (localStorage) volume = parseFloat(localStorage.getItem("volume"));
         if (isNaN(volume)) {
             volume = 1;
         }
     }
     document.getElementById("volumeSlider").value = volume * 100;
-    document.getElementById("recordSound").volume = volume;
-    document.getElementById("tickingSound").volume = volume;
-    document.getElementById("ventingSound").volume = volume / 2;
-    document.getElementById("warningSound").volume = volume / 2;
+    recordSound.volume = volume;
+    tickingSound.volume = volume;
+    ventingSound.volume = volume / 2;
+    warningSound.volume = volume / 2;
     document.getElementById("volumeLevel").innerHTML = "Please choose your volume level.<br>Current volume level is " + Math.round(volume * 100) + "%.";
 }
 
@@ -471,21 +542,24 @@ function setLoop(changed) {
     if (playerType !== "Twitch") {
         if (changed === "true") {
             player.setLoop(document.getElementById("loopCheckbox").checked);
-            localStorage.setItem("loop", document.getElementById("loopCheckbox").checked);
+            if (localStorage) localStorage.setItem("loop", document.getElementById("loopCheckbox").checked);
         } else {
-            var value = localStorage.getItem("loop");
-            if (value === "true") {
-                value = true;
-            } else {
-                value = false;
+            if (localStorage) {
+                var value = localStorage.getItem("loop");
+                if (value === "true") {
+                    value = true;
+                } else {
+                    value = false;
+                }
+                player.setLoop(value);
+                document.getElementById("loopCheckbox").checked = value;
             }
-            player.setLoop(value);
-            document.getElementById("loopCheckbox").checked = value;
         }
     }
 }
 
-function load() {
+function load(e) {
+    e.preventDefault();
     document.getElementById("loadButton").src = "assets/littleButtonPressed.png";
     var videoUrl = document.getElementById("videoUrl").value;
     
@@ -493,10 +567,10 @@ function load() {
         player.destroy();
     }
 
-    if (videoUrl.indexOf("twitch") != -1) {
+    if (videoUrl.match(/^(https\:\/\/)?twitch\.tv|^(https\:\/\/)?m\.twitch\.tv|^(https\:\/\/)?www\.twitch\.tv/gi) != null) {
         if (location.protocol != "file:") {
             playerType = "Twitch";
-            var channelName = videoUrl.replace(/https\:\/\/|m\.|www\.|twitch\.tv\//g, "");
+            var channelName = videoUrl.replace(/https\:\/\/|m\.|www\.|twitch\.tv\//gi, "");
             var remove_after = channelName.indexOf("&");
             if (remove_after != -1) {
                 channelName = channelName.substring(0, remove_after);
@@ -514,17 +588,18 @@ function load() {
             });
             player.addEventListener(Twitch.Player.READY, function () {
                 player.pause();
+                player.setVolume(0);
                 playerReady = true;
             });
         } else {
             alert("Because the Twitch Embed API is dumb, Twitch streams can not be embbeded if you're running Steam-Powered YouTube locally.\nPlease try playing this game off of a local server, or off of my site at https://loganius.org/steamtube/");
             return;
         }
-    } else if (videoUrl.indexOf("youtu") != -1) {
+    } else if (videoUrl.match(/^(https\:\/\/)?www\.youtube\.com\/|^(https\:\/\/)?m\.youtube\.com\/|^(https\:\/\/)?youtu\.be\//gi) != null) {
         playerType = "YouTube"; 
 
         // Stupid YouTube API won't accept normal YouTube URLs for loadVideoByUrl, so I have to do this instead.
-        var videoid = videoUrl.replace(/https\:\/\/|www\.youtube\.com\/watch\?v=|youtu\.be\//g, ""); 
+        var videoid = videoUrl.replace(/https\:\/\/|m\.youtube\.com|www\.youtube\.com|\/live\/|\/watch\?v=|youtu\.be\//gi, ""); 
         
         // Thanks Leo and Samina Zahid of Stack Overflow!
         var remove_after = videoid.indexOf("&");
@@ -571,37 +646,49 @@ function load() {
             });
         }
     } else {
-        player = new VideoPlayer("player", {
+        player = new VideoPlayer(playerElement, {
             height: "100%",
             width: "100%",
             controls: false,
             url: videoUrl
         });
         playerType = "Video";
-    } 
+    }
 
-    // Reset the "Turn video crank to unpause" screen
-    document.getElementById("turnCrankToPlay").style.opacity = 1;
-    document.getElementById("noise").style.opacity = 0.6; 
+    // Get the new player element.
+    playerElement = document.getElementById("player");
 
     // Reset the video and audio quality, as well as the pressure.
     videoQuality = 0;
     audioQuality = 0;
     pressure = 0;
+    lastVolume = 0;
     playing = false;
     playerReady = false;
-    audioNoise.pause();
-    if (platform.os.family === "iOS") {
+    if (legacyAudio) {
+        audioNoise.pause();
+    } else {
         audioContext.suspend();
     }
-    recordSound.pause();
+
+    // Reset the peak quality displays.
+    peakQualityLight.src = "assets/notPeakQuality.png";
+    peakTimeDiv.style.backgroundImage = "url(\"assets/notBestTime.png\")";
+    bestTimeDiv.style.backgroundImage = "url(\"assets/bestTimeRecord.png\")";
+
+    // Reset the "Turn video crank to unpause" screen
+    videoNoise.style.opacity = 0.6; 
     document.getElementById("screenOverlay").style.zIndex = "4";
-    document.getElementById("turnCrankToPlay").style.zIndex = "3";
-    document.getElementById("noise").style.zIndex = "2";
-    document.getElementById("player").style.zIndex = "1";
+    crankTextContainer.style.opacity = 1;
+    crankTextContainer.style.zIndex = "3";
+    videoNoise.style.zIndex = "2";
+    playerElement.style.zIndex = "1";
+    crankText.innerHTML = "LOADING...";
+    loadingCursor.style.display = "";
 }
 
-function releaseLoadButton() {
+function releaseLoadButton(e) {
+    e.preventDefault();
     document.getElementById("loadButton").src = "assets/littleButton.png";
 }
 
@@ -609,9 +696,9 @@ setDifficulty(false);
 setVolume(false);
 
 // Update the style of the .video class if the user is using a version of firefox prior to 52.
-if (platform.name === "Firefox" && platform.version < 52) {
+if (platform.name === "Firefox" && parseFloat(platform.version) < 52) {
     var videoElements = document.getElementsByClassName("video");
-    for (var i = 0; i < videoElements; i++) {
+    for (var i = 0; i < videoElements.length; i++) {
         videoElements[i].style.top = "-111px";
         videoElements[i].style.left = "-201px";
     }
@@ -621,14 +708,18 @@ if (platform.name === "Firefox" && platform.version < 52) {
     alert("You are playing on mobile. On mobile, autoplay may not work. If this happens, please press the \"Play\" button on the YouTube player to start the video.\nAlso note that the audio may not play on mobile, or may not play at the correct volume.\nFor the best experience, please play on desktop.");
 
     if (platform.os.family == "iOS") {
-        document.getElementById("loadButton").style.top = "22px";
-        document.getElementById("loadButton").style.left = "62px";
+        document.getElementById("loadButton").style.top = "20px";
+        document.getElementById("loadButton").style.left = "61px";
     }
 
     document.getElementById("screenOverlay").addEventListener("touchstart", function (e) {
         document.getElementById("screenOverlay").style.zIndex = "0";
+        crankTextContainer.style.zIndex = "0";
+        videoNoise.style.zIndex = "0";
         var makeOverlayAppearTimeout = setTimeout(function (timeout) {
             document.getElementById("screenOverlay").style.zIndex = "4";
+            crankTextContainer.style.zIndex = "3";
+            videoNoise.style.zIndex = "2";
             clearTimeout(timeout);
         }, 3000, makeOverlayAppearTimeout);
     });
@@ -636,10 +727,10 @@ if (platform.name === "Firefox" && platform.version < 52) {
 
 if (isNaN(bestTime)) {
     bestTime = 0;
-    localStorage.setItem("bestTime", bestTime);
+    if (localStorage) localStorage.setItem("bestTime", bestTime);
 }
 
-if (!(window.webkitAudioContext) && !(window.AudioContext)) {
+if (typeof(window.webkitAudioContext) === "undefined" && typeof(window.AudioContext) === "undefined") {
     audioNoise = document.createElement("audio");
     audioNoise.src = assets/noise.mp3;
     audioNoise.loop = "true";
@@ -656,7 +747,7 @@ if (!(window.webkitAudioContext) && !(window.AudioContext)) {
     pinkGain.gain.value = 0; 
 }
 
-document.getElementById("bestTime").innerHTML = formatTime(bestTime);
+bestTimeText.innerHTML = formatTime(bestTime);
 document.getElementById("pressureVent").addEventListener("mousedown", ventPressed);
 document.getElementById("pressureVent").addEventListener("mouseout", ventReleased);
 document.getElementById("pressureVent").addEventListener("mouseup", ventReleased);
@@ -672,7 +763,7 @@ document.getElementById("loadButton").addEventListener("mouseup", releaseLoadBut
 document.getElementById("loadButton").addEventListener("touchend", releaseLoadButton);
 document.getElementById("videoUrl").addEventListener("keydown", function (e) {
     if (e.key == "Enter") {
-        load();
+        load(e);
     }
 });
 
@@ -682,5 +773,9 @@ if (!mobile) {
     document.getElementById("videoContainer").addEventListener("mouseenter", function(e) {e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation();});
     document.getElementById("videoContainer").addEventListener("mouseleave", function(e) {e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation();});
 }
-requestAnimationFrame(backgroundTask);
 requestAnimationFrame(pressureTask);
+if (typeof(requestIdleCallback) === "undefined") {
+    setInterval(backgroundTask, 67);
+} else {
+    requestIdleCallback(backgroundTask, {timeout: 100});
+}

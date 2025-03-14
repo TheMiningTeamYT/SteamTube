@@ -251,7 +251,8 @@ input {
   color: white;
 }
 #statusLights div div p {
-  font-size: 24px; 
+  font-size: 36px; 
+  margin-top: 2px;
   font-family: 'Union Agrochem';
 }
 #videoContainer {

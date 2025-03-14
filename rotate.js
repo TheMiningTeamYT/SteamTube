@@ -21,8 +21,8 @@ The Desmos Graphing Calculator.
 var activeControl;
 
 function rotatePoint(x, y, angle) {
-    let x1 = x*Math.cos(angle) - y*Math.sin(angle);
-    let y1 = y*Math.cos(angle) + x*Math.sin(angle);
+    var x1 = x*Math.cos(angle) - y*Math.sin(angle);
+    var y1 = y*Math.cos(angle) + x*Math.sin(angle);
     return [x1, y1];
 }
 
@@ -86,12 +86,12 @@ QualityControl.prototype.touchmove = function(e) {
         var centerX = boundingRect.x + (boundingRect.width / 2);
         var centerY = boundingRect.y + (boundingRect.height / 2);
         var angle = Math.atan2(e.targetTouches[0].clientY - centerY, e.targetTouches[0].clientX - centerX);
+        this.rotation += angle - this.lastAngle;
         if (this.lastAngle < -Math.PI/2 && angle > Math.PI/2) {
             this.rotation -= 2*Math.PI;
         } else if (this.lastAngle > Math.PI/2 && angle < -Math.PI/2) {
             this.rotation += 2*Math.PI;
         }
-        this.rotation += angle - this.lastAngle;
         this.lastAngle = angle;
     }
 }
@@ -122,12 +122,12 @@ QualityControl.prototype.mousemove = function(e) {
         var centerX = boundingRect.x + (boundingRect.width / 2);
         var centerY = boundingRect.y + (boundingRect.height / 2);
         var angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+        this.rotation += angle - this.lastAngle;
         if (this.lastAngle < -Math.PI/2 && angle > Math.PI/2) {
             this.rotation -= 2*Math.PI;
         } else if (this.lastAngle > Math.PI/2 && angle < -Math.PI/2) {
             this.rotation += 2*Math.PI;
         }
-        this.rotation += angle - this.lastAngle;
         this.lastAngle = angle;
     }
 }
@@ -149,9 +149,11 @@ QualityControl.prototype.frame = function(now) {
             this.active = false;
             this.mouseUp = false;
         }
-        let shadow = rotatePoint(0, 20, -this.rotation);
-        this.control.style.transform = "rotate(" + this.rotation + "rad)";
-        this.control.style.filter = "drop-shadow(" + shadow[0] + "px " + shadow[1] + "px 3px rgba(0,0,0,0.7))";
+        if (this.rotation != this.lastRotation) {
+            var shadow = rotatePoint(0, 20, -this.rotation);
+            this.control.style.transform = "rotate(" + this.rotation + "rad)";
+            this.control.style.filter = "drop-shadow(" + shadow[0] + "px " + shadow[1] + "px 3px rgba(0,0,0,0.7))";
+        }
         this.lastRotation2 = this.lastRotation;
         this.lastRotation = this.rotation;
         this.lastFrame2 = this.lastFrame;
