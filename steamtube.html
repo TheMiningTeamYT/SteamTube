@@ -29,17 +29,17 @@ The Desmos Graphing Calculator.
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300&display=swap" rel="stylesheet" media="print" onload="this.media='all'"> 
     <!-- These are here for social media to grab the title and thumbnail. -->
     <meta property="og:title" content="Steam-Powered YouTube">
-    <meta property="og:url" content="https://www.bahjeez.com/logan/steamtube/steamtube.html">
-    <meta property="og:image" content="https://www.bahjeez.com/logan/steamtube/assets/Steam Powered Youtube.jpg">
+    <meta property="og:url" content="https://loganius.org/steamtube/">
+    <meta property="og:image" content="https://loganius.org/wp-content/uploads/2025/03/Steam-Powered-Youtube.jpg">
   </head>
   <body style="display: none;">
     <div id="topbar">
-      <a href="../home.html">Go Back Home.</a>
+      <a href="/">Go Back Home.</a>
     </div>
     <div style="flex-direction: column; width: 100%; align-items: center">
       <img src="assets/header.jpg" style="width: 900px; height: 96px" />
       <p style="margin: 2px 2px 2px 20px; font-family: 'Union Agrochem'; font-size: 20px; color: white;">
-        Recreated By: Logan C.
+        Recreated By Logan C.
       </p>
     </div>
     <noscript>
@@ -53,42 +53,45 @@ The Desmos Graphing Calculator.
           Sorry, but without Javascript enabled, you can't play this game.
         </p>
       </div>
-    </noscript>
+    </noscript>    
+    <!-- 
+      If you wanted to embed Steam-Powered YouTube on your own page, 
+      this plus the controls container should be everything you need.
+    -->
     <div style="display: flex; width: 100%; user-select: none; overflow: hidden;">
       <div class="mainContainer">
         <div>
-          <input type="text" id="videoUrl" />
-          <img id="loadButton" src="assets/littleButton.png" />
+          <input type="text" placeholder="Enter URL of video to load here. Supports YouTube, Twitch, Vimeo, and video files." id="videoUrl" />
+          <img id="loadButton" draggable="false" src="assets/littleButton.png" />
         </div>
-        <div class="videoContainer">
+        <div id="videoContainer">
           <img id="screenOverlay" src="assets/screen-overlay.png" style="opacity: 0.8; z-index: 4; width: 422px; height: 230px; left: -216px; top: -114px; position: absolute;"/>
           <div id="turnCrankToPlay" class="video">
             <p id="turnCrankToPlayText">LOADING...<div id="loadingCursorContainer"><div id="loadingCursor"></div></div></p>
           </div>
-          <img src="assets/noise.gif" class="video" id="noise" />
+          <img src="assets/noise.gif" class="video" id="noise"/>
           <div id="player" class="video"></div>
         </div>
         <div>
-          <div class="dial" id="audioDial"></div>
-          <div class="dial" id="videoDial"></div>
+          <img class="dial" src="assets/needle.png" id="audioDial"/>
+          <img class="dial" src="assets/needle.png" id="videoDial"/>
         </div>
-        <div
-          style="margin-top: 20px;">
+        <div style="margin-top: 20px;">
           <div id="audioQualityControl" class="qualityControl">
             <img src="assets/qualityControlWheel.png"/>
           </div>
-          <img src="assets/bigButton.png" id="pressureVent" draggable="false" />
-          <div id="pressureDial" class="dial"></div>
+          <img src="assets/bigButton.png" id="pressureVent" draggable="false"/>
+          <img class="dial" src="assets/needle.png" id="pressureDial"/>
           <div id="statusLights">
-            <img id="overheatLight" src="assets/noOverheat.png" />
-            <img id="peakQualityLight" src="assets/notPeakQuality.png" />
+            <img id="overheatLight" src="assets/noOverheat.png"/>
+            <img id="peakQualityLight" src="assets/notPeakQuality.png"/>
             <div
               style="flex-direction: row; align-items: center; margin: 0;">
-              <div id="bestTimeDiv" style="background-image: url('assets/notBestTime.png')">
-                <p id="bestTimeText" class="smalltext">0:00</p>
+              <div id="peakTimeDiv" style="background-image: url('assets/notBestTime.png')">
+                <p id="peakTimeText" class="smalltext">0:00</p>
               </div>
-              <div style="background-image: url('assets/bestTimeRecord.png')">
-                <p id="bestTimeRecord" class="smalltext">0:00</p>
+              <div id="bestTimeDiv" style="background-image: url('assets/bestTimeRecord.png')">
+                <p id="bestTime" class="smalltext">0:00</p>
               </div>
             </div>
             <p style="font-family: 'Union Agrochem'; color: #6d0601; position: relative; left: 40px; font-size: 20px; margin-top: 5px;">
@@ -96,9 +99,14 @@ The Desmos Graphing Calculator.
             </p>
           </div>
           <div id="videoQualityControl" class="qualityControl">
-            <img src="assets/qualityControlWheel.png" />
+            <img src="assets/qualityControlWheel.png"/>
           </div>
         </div>
+        <audio id="recordSound" src="assets/HissSound.mp3" preload="auto" loop="true"></audio>
+        <audio id="ventingSound" src="assets/SteamSound.mp3" preload="auto"></audio>
+        <audio id="tickingSound" src="assets/TickSound.mp3" preload="auto" loop="true"></audio>
+        <audio id="warningSound" src="assets/warning.mp3" preload="auto"></audio>
+        <audio id="audioNoise" src="assets/noise.mp3" preload="auto" loop="true" volume="0.25"></audio>
       </div>
     </div>
     <div
@@ -109,7 +117,7 @@ The Desmos Graphing Calculator.
             Please choose your difficulty level.<br>Current dificulty level is 6.
           </p>
           <div>
-            <input id="difficultySlider" type="range" min="1" max="12" value="6" oninput="setDifficulty('true')"/>
+            <input id="difficultySlider" type="range" min="1" max="12" value="6"/>
           </div>
         </div>
         <div style="flex-direction: column;">
@@ -117,7 +125,7 @@ The Desmos Graphing Calculator.
             Please choose your volume level.<br>Current volume level is 100.
           </p>
           <div>
-            <input id="volumeSlider" type="range" min="0" max="100" value="100" oninput="setVolume('true')"/>
+            <input id="volumeSlider" type="range" min="0" max="100" value="100"/>
           </div>
         </div>
         <div style="flex-direction: column;">
@@ -169,17 +177,13 @@ The Desmos Graphing Calculator.
         Thank you so much developers of platform.js!
       </p>
     </div>
-    <audio id="recordSound" src="assets/HissSound.mp3" preload="auto" loop="true"></audio>
-    <audio id="ventingSound" src="assets/SteamSound.mp3" preload="auto"></audio>
-    <audio id="tickingSound" src="assets/TickSound.mp3" preload="auto" loop="true"></audio>
-    <audio id="warningSound" src="assets/warning.mp3" preload="auto"></audio>
     <!-- Credit to the platform.js team!-->
     <script src="platform.js"></script>
     <!-- Thank you Zach Denton of https://noisehack.com/generate-noise-web-audio-api/ !-->
     <script src="noise.js"></script>
-    <script src="main.js"></script>
-    <!-- Thanks J. Voigt of https://bl.ocks.org/joyrexus/7207044 ! -->
     <script src="rotate.js"></script>
+    <script src="main.js"></script>
+    <script defer src="https://player.vimeo.com/api/player.js"></script>
     <script defer src="https://player.twitch.tv/js/embed/v1.js"></script>
     <script>
       var tag = document.createElement("script");
@@ -198,7 +202,7 @@ The Desmos Graphing Calculator.
               controls: 1,
               autoplay: 0,
               loop: 0,
-              playlist: "Zux_GebV374",
+              playlist: "Zux_GebV374"
             },
             events: {
               onReady: onYTPlayerReady,
@@ -214,16 +218,19 @@ The Desmos Graphing Calculator.
               controls: 0,
               autoplay: 0,
               loop: 0,
-              playlist: "Zux_GebV374",
+              playlist: "Zux_GebV374"
             },
             events: {
               onReady: onYTPlayerReady
             },
           });
         }
+        playerElement = document.getElementById("player");
       }
       function onYTPlayerReady() {
         playerReady = true;
+        player.setVolume(0);
+        setLoop(false);
       }
     </script>
   </body>
