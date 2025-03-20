@@ -140,6 +140,7 @@ var peakQuality = false;
 var playerReady = false;
 var playerType = "YouTube";
 var mobile = false;
+var overlayHidden = false;
 var bestTime = 0;
 if (localStorage) bestTime = parseFloat(localStorage.getItem("bestTime"))
 // Define global var difficulty first so that it can be used by setDifficulty
@@ -167,7 +168,7 @@ function videoQualityCheck(obj, time) {
         }
     } else if (playerReady) {
         if (obj.rotation > obj.lastRotation2 && obj.active) {
-            crankTextContainer.style.opacity = 0;
+            crankTextContainer.style.display = "none";
 
             // Start the video playing
             if (playerType === "YouTube") {
@@ -183,6 +184,7 @@ function videoQualityCheck(obj, time) {
             } else {
                 pinkGain.gain.value = 0.25;
             }
+
             playing = true;
         }
     }
@@ -213,7 +215,7 @@ function videoQualityCheck(obj, time) {
         }
     }
 
-    var decrease = (playing) ? (difficulty/1.5)*time*(2-videoQuality*1.5)/40000 : (difficulty/1.5)*time*(2-videoQuality*1.5)/160000
+    var decrease = (playing) ? (difficulty/1.5)*time*(2-videoQuality*1.5)*0.000025 : (difficulty/1.5)*time*(2-videoQuality*1.5)*0.00000625;
     if (ventingDueToOverheat) {
         decrease *= 5;
     }
@@ -222,14 +224,23 @@ function videoQualityCheck(obj, time) {
     } else {
         videoQuality = 0;
     }
-    if (videoQuality > 1) {
+
+    // Move the dial according to the video quality.
+    if (videoQuality >= 1) {
         videoQuality = 1;
-    } 
+        if (videoQualityDial.style.transform !== "rotate(125deg)")
+            videoQualityDial.style.transform = "rotate(125deg)";
+    } else if (videoQuality === 0) {
+        if (videoQualityDial.style.transform !== "rotate(-125deg)")
+            videoQualityDial.style.transform = "rotate(-125deg)";
+    } else {
+        videoQualityDial.style.transform = "rotate(" + (250*videoQuality - 125) + "deg)";
+    }
 
     // Set the opacity of the video noise according to the video quality.
-    if (1 - videoQuality/vQualThres < 0.05) {
-        if (playerElement.style.filter !== "blur(0px) brightness(1)")
-            playerElement.style.filter = "blur(0px) brightness(1)";
+    if (1 - videoQuality/vQualThres <= 0) {
+        if (playerElement.style.filter !== "")
+            playerElement.style.filter = "";
         if (videoNoise.style.display !== "none") 
             videoNoise.style.display = "none";
     } else {
@@ -238,9 +249,6 @@ function videoQualityCheck(obj, time) {
             videoNoise.style.display = "";
         videoNoise.style.opacity = 1 - videoQuality/vQualThres;
     }
-
-    // Move the dial according to the video quality.
-    videoQualityDial.style.transform = "rotate(" + (250*videoQuality - 125) + "deg)";
 }
 
 function audioQualityCheck(obj, time) {
@@ -275,11 +283,16 @@ function audioQualityCheck(obj, time) {
     } else {
         audioQuality = 0;
     }
-    if (audioQuality > 1) {
+    if (audioQuality >= 1) {
         audioQuality = 1;
+        if (audioQualityDial.style.transform !== "rotate(135deg)")
+            audioQualityDial.style.transform = "rotate(135deg)";
+    } else if (audioQuality === 0) {
+        if (audioQualityDial.style.transform !== "rotate(-125deg)")
+            audioQualityDial.style.transform = "rotate(-125deg)";
+    } else {
+        audioQualityDial.style.transform = "rotate(" + (260*audioQuality - 125) + "deg)";
     }
-
-    audioQualityDial.style.transform = "rotate(" + (260*audioQuality - 125) + "deg)";
 
     if (playing) {
         // Set the volume of the video player.
@@ -440,18 +453,10 @@ function backgroundTask() {
                     bestTimeDiv.style.backgroundImage = "url(\"assets/bestTimeRecord.png\")";
             }
         }
-        // If the user is on mobile, make it so that everything infront of the YouTube player is hidden.
-        if (mobile || playerType == "Twitch") {
-            crankTextContainer.style.zIndex = "0";
-        }
     } else {
         if (now > debounce) {
-            if (crankTextContainer.style.opacity !== "1") 
-                crankTextContainer.style.opacity = "1";
-            if (crankTextContainer.style.zIndex !== "4") 
-                crankTextContainer.style.zIndex = "4";
-            if (videoNoise.style.zIndex !== "2") 
-                videoNoise.style.zIndex = "2";
+            if (crankTextContainer.style.display !== "") 
+                crankTextContainer.style.display = "";
             if (playerReady) {
                 if (crankText.innerHTML !== "TURN THE VIDEO CRANK TO UNPAUSE VIDEO") 
                     crankText.innerHTML = "TURN THE VIDEO CRANK TO UNPAUSE VIDEO";
@@ -567,7 +572,7 @@ function load(e) {
         player.destroy();
     }
 
-    if (videoUrl.match(/^(https\:\/\/)?twitch\.tv|^(https\:\/\/)?m\.twitch\.tv|^(https\:\/\/)?www\.twitch\.tv/gi) != null) {
+    if (videoUrl.match(/^(https\:\/\/)?twitch\.tv|^(https\:\/\/)?m\.twitch\.tv|^(https\:\/\/)?www\.twitch\.tv/gi) !== null) {
         if (location.protocol != "file:") {
             playerType = "Twitch";
             var channelName = videoUrl.replace(/https\:\/\/|m\.|www\.|twitch\.tv\//gi, "");
@@ -595,7 +600,28 @@ function load(e) {
             alert("Because the Twitch Embed API is dumb, Twitch streams can not be embbeded if you're running Steam-Powered YouTube locally.\nPlease try playing this game off of a local server, or off of my site at https://loganius.org/steamtube/");
             return;
         }
-    } else if (videoUrl.match(/^(https\:\/\/)?www\.youtube\.com\/|^(https\:\/\/)?m\.youtube\.com\/|^(https\:\/\/)?youtu\.be\//gi) != null) {
+    } else if (videoUrl.match(/^(https\:\/\/)?vimeo\.com\/|^(https\:\/\/)?player.vimeo\.com\//gi) !== null) {
+        playerType = "Vimeo";
+        // If the link does not start with https, turn it into a link.
+        if (videoUrl.substr(0, 8) !== "https://") {
+            videoUrl = "https://" + videoUrl;
+        }
+        
+        // Load video
+        player = new Vimeo.Player("player", {
+            url: videoUrl,
+            width: 450,
+            height: 260,
+            controls: mobile,
+            autoplay: false,
+            playsinline: true,
+            vimeo_logo: true,
+            volume: 0
+        });
+        player.ready().then(function() {
+            playerReady = true;
+        });
+    } else if (videoUrl.match(/^(https\:\/\/)?www\.youtube\.com\/|^(https\:\/\/)?m\.youtube\.com\/|^(https\:\/\/)?youtu\.be\//gi) !== null) {
         playerType = "YouTube"; 
 
         // Stupid YouTube API won't accept normal YouTube URLs for loadVideoByUrl, so I have to do this instead.
@@ -612,39 +638,21 @@ function load(e) {
         }
 
         // Load video
-        if (mobile) {
-            player = new YT.Player("player", {
-                height: "260",
-                width: "450",
-                videoId: videoid,
-                playerVars: {
-                    playsinline: 1,
-                    controls: 1,
-                    autoplay: 0,
-                    loop: 0,
-                    playlist: videoid,
-                },
-                events: {
-                    onReady: onYTPlayerReady
-                }
-            });
-        } else {
-            player = new YT.Player("player", {
-                height: "260",
-                width: "450",
-                videoId: videoid,
-                playerVars: {
-                    playsinline: 1,
-                    controls: 0,
-                    autoplay: 0,
-                    loop: 0,
-                    playlist: videoid,
-                },
-                events: {
-                    onReady: onYTPlayerReady
-                }
-            });
-        }
+        player = new YT.Player("player", {
+            width: "450",
+            height: "260",
+            videoId: videoid,
+            playerVars: {
+                playsinline: 1,
+                controls: (mobile) ? 1 : 0,
+                autoplay: 0,
+                loop: 0,
+                playlist: videoid,
+            },
+            events: {
+                onReady: onYTPlayerReady
+            }
+        });
     } else {
         player = new VideoPlayer(playerElement, {
             height: "100%",
@@ -678,11 +686,7 @@ function load(e) {
 
     // Reset the "Turn video crank to unpause" screen
     videoNoise.style.opacity = 0.6; 
-    document.getElementById("screenOverlay").style.zIndex = "4";
-    crankTextContainer.style.opacity = 1;
-    crankTextContainer.style.zIndex = "3";
-    videoNoise.style.zIndex = "2";
-    playerElement.style.zIndex = "1";
+    crankTextContainer.style.display = "";
     crankText.innerHTML = "LOADING...";
     loadingCursor.style.display = "";
 }
@@ -692,8 +696,25 @@ function releaseLoadButton(e) {
     document.getElementById("loadButton").src = "assets/littleButton.png";
 }
 
-setDifficulty(false);
-setVolume(false);
+function hideOverlay() {
+    document.getElementById("screenOverlay").style.display = "none";
+    videoNoise.style.display = "none";
+    overlayHidden = true;
+    var makeOverlayAppearTimeout = setTimeout(function (timeout) {
+        document.getElementById("screenOverlay").style.display = "";
+        videoNoise.style.display = "";
+        overlayHidden = false;
+        clearTimeout(timeout);
+    }, 5000, makeOverlayAppearTimeout);
+}
+
+function consumeEvent(e) {
+    if (!overlayHidden) {
+        e.preventDefault(); 
+        e.stopImmediatePropagation(); 
+        e.stopPropagation();
+    }
+}
 
 // Update the style of the .video class if the user is using a version of firefox prior to 52.
 if (platform.name === "Firefox" && parseFloat(platform.version) < 52) {
@@ -702,6 +723,21 @@ if (platform.name === "Firefox" && parseFloat(platform.version) < 52) {
         videoElements[i].style.top = "-111px";
         videoElements[i].style.left = "-201px";
     }
+    document.getElementById("screenOverlay").style.top = "-113px";
+    document.getElementById("screenOverlay").style.left = "-205px";
+} else if (platform.name === "Safari" && parseFloat(platform.version) <= 11) {
+    var videoElements = document.getElementsByClassName("video");
+    for (var i = 0; i < videoElements.length; i++) {
+        videoElements[i].style.top = "-121px";
+    }
+    audioQualityDial.style.top = "-1px";
+    videoQualityDial.style.top = "0px";
+    document.getElementById("screenOverlay").style.top = "-123px";
+    document.getElementById("videoUrl").style.top = "15px";
+    document.getElementById("videoUrl").style.left = "53px";
+    document.getElementById("loadButton").style.top = "8px";
+    document.getElementById("loadButton").style.left = "66px";
+
 } else if (platform.os.family == "iOS" || platform.os.family == "Android") {
     // If the user is on an iOS or Android device, set the mobile variable to true.
     mobile = true;
@@ -711,18 +747,6 @@ if (platform.name === "Firefox" && parseFloat(platform.version) < 52) {
         document.getElementById("loadButton").style.top = "20px";
         document.getElementById("loadButton").style.left = "61px";
     }
-
-    document.getElementById("screenOverlay").addEventListener("touchstart", function (e) {
-        document.getElementById("screenOverlay").style.zIndex = "0";
-        crankTextContainer.style.zIndex = "0";
-        videoNoise.style.zIndex = "0";
-        var makeOverlayAppearTimeout = setTimeout(function (timeout) {
-            document.getElementById("screenOverlay").style.zIndex = "4";
-            crankTextContainer.style.zIndex = "3";
-            videoNoise.style.zIndex = "2";
-            clearTimeout(timeout);
-        }, 3000, makeOverlayAppearTimeout);
-    });
 }
 
 if (isNaN(bestTime)) {
@@ -761,17 +785,23 @@ document.getElementById("loadButton").addEventListener("touchstart", load);
 document.getElementById("loadButton").addEventListener("mouseout", releaseLoadButton);
 document.getElementById("loadButton").addEventListener("mouseup", releaseLoadButton);
 document.getElementById("loadButton").addEventListener("touchend", releaseLoadButton);
+document.getElementById("screenOverlay").addEventListener("touchstart", hideOverlay);
 document.getElementById("videoUrl").addEventListener("keydown", function (e) {
     if (e.key == "Enter") {
         load(e);
     }
 });
 
+setDifficulty(false);
+setVolume(false);
 if (!mobile) {
-    document.getElementById("videoContainer").addEventListener("mousemove", function(e) {e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation();});
-    document.getElementById("videoContainer").addEventListener("mouseover", function(e) {e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation();});
-    document.getElementById("videoContainer").addEventListener("mouseenter", function(e) {e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation();});
-    document.getElementById("videoContainer").addEventListener("mouseleave", function(e) {e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation();});
+    document.getElementById("videoContainer").addEventListener("click", hideOverlay);
+    document.getElementById("videoContainer").addEventListener("mousedown", hideOverlay);
+    document.getElementById("videoContainer").addEventListener("mouseup", consumeEvent);
+    document.getElementById("videoContainer").addEventListener("mousemove", consumeEvent);
+    document.getElementById("videoContainer").addEventListener("mouseover", consumeEvent);
+    document.getElementById("videoContainer").addEventListener("mouseenter", consumeEvent);
+    document.getElementById("videoContainer").addEventListener("mouseleave", consumeEvent);
 }
 requestAnimationFrame(pressureTask);
 if (typeof(requestIdleCallback) === "undefined") {

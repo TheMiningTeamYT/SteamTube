@@ -66,8 +66,8 @@ function QualityControl(element, rotateCallback) {
 }
 
 QualityControl.prototype.touchstart = function(e) {
+    e.preventDefault();
     if (!this.active) {
-        e.preventDefault();
         var boundingRect = this.control.getBoundingClientRect();
         var centerX = boundingRect.x + (boundingRect.width / 2);
         var centerY = boundingRect.y + (boundingRect.height / 2);
@@ -167,13 +167,13 @@ QualityControl.prototype.frame = function(now) {
     requestAnimationFrame(this.frame.bind(this));
 }
 
-document.documentElement.addEventListener("mousemove", function(e) {
+document.body.addEventListener("mousemove", function(e) {
     if (typeof(activeControl) !== "undefined" && activeControl.active) {
         activeControl.mousemove(e);
     }
 });
 
-document.documentElement.addEventListener("mouseup", function(e) {
+document.body.addEventListener("mouseup", function(e) {
     if (typeof(activeControl) !== "undefined" && activeControl.active) {
         activeControl.up(e);
     }

@@ -29,8 +29,8 @@ The Desmos Graphing Calculator.
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300&display=swap" rel="stylesheet" media="print" onload="this.media='all'"> 
     <!-- These are here for social media to grab the title and thumbnail. -->
     <meta property="og:title" content="Steam-Powered YouTube">
-    <meta property="og:url" content="https://www.bahjeez.com/logan/steamtube/steamtube.html">
-    <meta property="og:image" content="https://www.bahjeez.com/logan/steamtube/assets/Steam Powered Youtube.jpg">
+    <meta property="og:url" content="https://loganius.org/steamtube/">
+    <meta property="og:image" content="https://loganius.org/wp-content/uploads/2025/03/Steam-Powered-Youtube.jpg">
   </head>
   <body style="display: none;">
     <div id="topbar">
@@ -39,7 +39,7 @@ The Desmos Graphing Calculator.
     <div style="flex-direction: column; width: 100%; align-items: center">
       <img src="assets/header.jpg" style="width: 900px; height: 96px" />
       <p style="margin: 2px 2px 2px 20px; font-family: 'Union Agrochem'; font-size: 20px; color: white;">
-        Recreated By: Logan C.
+        Recreated By Logan C.
       </p>
     </div>
     <noscript>
@@ -61,7 +61,7 @@ The Desmos Graphing Calculator.
     <div style="display: flex; width: 100%; user-select: none; overflow: hidden;">
       <div class="mainContainer">
         <div>
-          <input type="text" placeholder="Enter URL of video to load here. Supports YouTube, Twitch, and video files." id="videoUrl" />
+          <input type="text" placeholder="Enter URL of video to load here. Supports YouTube, Twitch, Vimeo, and video files." id="videoUrl" />
           <img id="loadButton" draggable="false" src="assets/littleButton.png" />
         </div>
         <div id="videoContainer">
@@ -69,22 +69,22 @@ The Desmos Graphing Calculator.
           <div id="turnCrankToPlay" class="video">
             <p id="turnCrankToPlayText">LOADING...<div id="loadingCursorContainer"><div id="loadingCursor"></div></div></p>
           </div>
-          <img src="assets/noise.gif" class="video" id="noise" />
+          <img src="assets/noise.gif" class="video" id="noise"/>
           <div id="player" class="video"></div>
         </div>
         <div>
-          <div class="dial" id="audioDial"></div>
-          <div class="dial" id="videoDial"></div>
+          <img class="dial" src="assets/needle.png" id="audioDial"/>
+          <img class="dial" src="assets/needle.png" id="videoDial"/>
         </div>
         <div style="margin-top: 20px;">
           <div id="audioQualityControl" class="qualityControl">
             <img src="assets/qualityControlWheel.png"/>
           </div>
-          <img src="assets/bigButton.png" id="pressureVent" draggable="false" />
-          <div id="pressureDial" class="dial"></div>
+          <img src="assets/bigButton.png" id="pressureVent" draggable="false"/>
+          <img class="dial" src="assets/needle.png" id="pressureDial"/>
           <div id="statusLights">
-            <img id="overheatLight" src="assets/noOverheat.png" />
-            <img id="peakQualityLight" src="assets/notPeakQuality.png" />
+            <img id="overheatLight" src="assets/noOverheat.png"/>
+            <img id="peakQualityLight" src="assets/notPeakQuality.png"/>
             <div
               style="flex-direction: row; align-items: center; margin: 0;">
               <div id="peakTimeDiv" style="background-image: url('assets/notBestTime.png')">
@@ -99,7 +99,7 @@ The Desmos Graphing Calculator.
             </p>
           </div>
           <div id="videoQualityControl" class="qualityControl">
-            <img src="assets/qualityControlWheel.png" />
+            <img src="assets/qualityControlWheel.png"/>
           </div>
         </div>
         <audio id="recordSound" src="assets/HissSound.mp3" preload="auto" loop="true"></audio>
@@ -183,6 +183,7 @@ The Desmos Graphing Calculator.
     <script src="noise.js"></script>
     <script src="rotate.js"></script>
     <script src="main.js"></script>
+    <script defer src="https://player.vimeo.com/api/player.js"></script>
     <script defer src="https://player.twitch.tv/js/embed/v1.js"></script>
     <script>
       var tag = document.createElement("script");
