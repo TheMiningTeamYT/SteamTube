@@ -186,45 +186,28 @@ The Desmos Graphing Calculator.
     <script defer src="https://player.vimeo.com/api/player.js"></script>
     <script defer src="https://player.twitch.tv/js/embed/v1.js"></script>
     <script>
+      var player;
       var tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
       tag.defer = true;
       var firstScriptTag = document.getElementsByTagName("script")[0];
       firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
       function onYouTubeIframeAPIReady() {
-        if (mobile === true) {
-          player = new YT.Player("player", {
-            height: "260",
-            width: "450",
-            videoId: "Zux_GebV374",
-            playerVars: {
-              playsinline: 1,
-              controls: 1,
-              autoplay: 0,
-              loop: 0,
-              playlist: "Zux_GebV374"
-            },
-            events: {
-              onReady: onYTPlayerReady,
-            },
-          });
-        } else {
-          player = new YT.Player("player", {
-            height: "260",
-            width: "450",
-            videoId: "Zux_GebV374",
-            playerVars: {
-              playsinline: 1,
-              controls: 0,
-              autoplay: 0,
-              loop: 0,
-              playlist: "Zux_GebV374"
-            },
-            events: {
-              onReady: onYTPlayerReady
-            },
-          });
-        }
+        player = new YT.Player("player", {
+          height: "260",
+          width: "450",
+          videoId: "Zux_GebV374",
+          playerVars: {
+            playsinline: 1,
+            controls: (mobile) ? 1 : 0,
+            autoplay: 0,
+            loop: 0,
+            playlist: "Zux_GebV374"
+          },
+          events: {
+            onReady: onYTPlayerReady,
+          },
+        });
         playerElement = document.getElementById("player");
       }
       function onYTPlayerReady() {

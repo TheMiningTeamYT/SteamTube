@@ -51,10 +51,12 @@ function QualityControl(element, rotateCallback) {
     this.lastRotation2 = 0;
     this.rotation = 0;
     this.angularVelocity = 0;
+    this.gamepadState = {x: 0, y: 0, timestamp: 0, active: false};
     this.lastFrame2 = performance.now();
     this.lastFrame = performance.now();
     this.nextFrame = performance.now() + (1000/30);
     this.callback = rotateCallback;
+    this.moved = false;
     
     this.control = element;
     this.control.draggable = false;
@@ -65,17 +67,51 @@ function QualityControl(element, rotateCallback) {
     requestAnimationFrame(this.frame.bind(this));
 }
 
+// X and Y are relative to the center of the control.
+QualityControl.prototype.start = function(x, y) {
+    if (!this.active) {
+        this.lastAngle = Math.atan2(y, x);
+        this.rotation = toCoterminalAngle(this.rotation);
+        this.lastRotation = toCoterminalAngle(this.lastRotation);
+        this.lastRotation2 = toCoterminalAngle(this.lastRotation2);
+        this.active = true;
+    }
+}
+
+QualityControl.prototype.move = function(x, y) {
+    if (this.active) {
+        var angle = Math.atan2(y, x);
+        this.rotation += angle - this.lastAngle;
+        if (this.lastAngle < -Math.PI/2 && angle > Math.PI/2) {
+            this.rotation -= 2*Math.PI;
+        } else if (this.lastAngle > Math.PI/2 && angle < -Math.PI/2) {
+            this.rotation += 2*Math.PI;
+        }
+        this.lastAngle = angle;
+    }
+}
+
+QualityControl.prototype.end = function(spin) {
+    if (this.active) {
+        if (spin) {
+            this.mouseUp = true;
+        } else {
+            this.active = false;
+            this.angularVelocity = 0;
+        }
+    }
+    if (activeControl === this) {
+        activeControl = undefined;
+    }
+}
+
 QualityControl.prototype.touchstart = function(e) {
     e.preventDefault();
     if (!this.active) {
         var boundingRect = this.control.getBoundingClientRect();
         var centerX = boundingRect.x + (boundingRect.width / 2);
         var centerY = boundingRect.y + (boundingRect.height / 2);
-        this.lastAngle = Math.atan2(e.targetTouches[0].clientY - centerY, e.targetTouches[0].clientX - centerX);
-        this.rotation = toCoterminalAngle(this.rotation);
-        this.lastRotation = toCoterminalAngle(this.lastRotation);
-        this.lastRotation2 = toCoterminalAngle(this.lastRotation2);
-        this.active = true;
+        this.start(e.targetTouches[0].clientX - centerX, e.targetTouches[0].clientY - centerY);
     }
 }
 
@@ -85,14 +121,7 @@ QualityControl.prototype.touchmove = function(e) {
         var boundingRect = this.control.getBoundingClientRect();
         var centerX = boundingRect.x + (boundingRect.width / 2);
         var centerY = boundingRect.y + (boundingRect.height / 2);
-        var angle = Math.atan2(e.targetTouches[0].clientY - centerY, e.targetTouches[0].clientX - centerX);
-        this.rotation += angle - this.lastAngle;
-        if (this.lastAngle < -Math.PI/2 && angle > Math.PI/2) {
-            this.rotation -= 2*Math.PI;
-        } else if (this.lastAngle > Math.PI/2 && angle < -Math.PI/2) {
-            this.rotation += 2*Math.PI;
-        }
-        this.lastAngle = angle;
+        this.move(e.targetTouches[0].clientX - centerX, e.targetTouches[0].clientY - centerY);
     }
 }
 
@@ -106,11 +135,7 @@ QualityControl.prototype.mousedown = function(e) {
         var boundingRect = this.control.getBoundingClientRect();
         var centerX = boundingRect.x + (boundingRect.width / 2);
         var centerY = boundingRect.y + (boundingRect.height / 2);
-        this.lastAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
-        this.rotation = toCoterminalAngle(this.rotation);
-        this.lastRotation = toCoterminalAngle(this.lastRotation);
-        this.lastRotation2 = toCoterminalAngle(this.lastRotation2);
-        this.active = true;
+        this.start(e.clientX - centerX, e.clientY - centerY);
         activeControl = this;
     }
 }
@@ -121,22 +146,13 @@ QualityControl.prototype.mousemove = function(e) {
         var boundingRect = this.control.getBoundingClientRect();
         var centerX = boundingRect.x + (boundingRect.width / 2);
         var centerY = boundingRect.y + (boundingRect.height / 2);
-        var angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
-        this.rotation += angle - this.lastAngle;
-        if (this.lastAngle < -Math.PI/2 && angle > Math.PI/2) {
-            this.rotation -= 2*Math.PI;
-        } else if (this.lastAngle > Math.PI/2 && angle < -Math.PI/2) {
-            this.rotation += 2*Math.PI;
-        }
-        this.lastAngle = angle;
+        this.move(e.clientX - centerX, e.clientY - centerY);
     }
 }
 
 QualityControl.prototype.up = function(e) {
     e.preventDefault();
-    if (this.active) {
-        this.mouseUp = true;
-    }
+    this.end(true);
 }
 
 QualityControl.prototype.frame = function(now) {
@@ -149,11 +165,12 @@ QualityControl.prototype.frame = function(now) {
             this.active = false;
             this.mouseUp = false;
         }
-        if (this.rotation != this.lastRotation) {
+        if (this.rotation !== this.lastRotation) {
             var shadow = rotatePoint(0, 20, -this.rotation);
             this.control.style.transform = "rotate(" + this.rotation + "rad)";
             this.control.style.filter = "drop-shadow(" + shadow[0] + "px " + shadow[1] + "px 3px rgba(0,0,0,0.7))";
         }
+        this.moved = ((this.active && this.rotation != this.lastRotation) || Math.abs(this.angularVelocity) > 0.0008);
         this.lastRotation2 = this.lastRotation;
         this.lastRotation = this.rotation;
         this.lastFrame2 = this.lastFrame;
